@@ -1,0 +1,7 @@
+#1410.2334
+#Old values wrong, they correspond to strain in units of Hz^(-1/2), no hc strain!!
+#1e6,1e-22
+#1e9,1e-22
+#Assume Sqrt(S)=1.7x10^-22 Hz^-1/2
+1e6,2.4e-19
+1e9,7.6e-18

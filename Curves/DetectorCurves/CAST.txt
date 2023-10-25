@@ -1,0 +1,4 @@
+#1908.00232, normalization of hc unclear
+#corrected wrong freqs (factor of 10 too high)
+5e17,5e-28
+1.2e18,5e-28

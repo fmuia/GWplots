@@ -1,0 +1,4 @@
+#0803.4094
+#Deduced from bound on h^2 Omega using our definition of strain
+1e8,9.8e-14
+1.2e8,9.8e-14

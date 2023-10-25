@@ -1,0 +1,3 @@
+#2006.01161 abstract, with x sqrt(2) correction due to different convention for hc
+7e7,1.4e-12
+8.6e7,1.4e-12

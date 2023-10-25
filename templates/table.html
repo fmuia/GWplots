@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Custom Table</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+    }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 20px;
+    }
+    th, td {
+        border: 1px solid #000;
+        text-align: left;
+        padding: 8px;
+        vertical-align: top;  /* Align content to the top */
+    }
+    th {
+        background-color: #f2f2f2;
+    }
+    .custom-button {
+        margin: 5px;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+
+    .custom-button:hover {
+        opacity: 0.8;
+    }
+
+    .flex-container {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;  /* Align items to the start of the flex container */
+        margin: 10px 0;  /* Add some margin between each flex container */
+    }
+
+    .explanation-text {
+        font-size: 12px;
+    }
+
+</style>
+
+    {{ script | safe }}  <!-- Bokeh script will be injected here -->
+
+    {{ bokeh_css | safe }}
+    {{ bokeh_js | safe }}
+
+</head>
+<body>
+
+<table id="custom-table">
+    <thead>
+        <tr>
+            <th>Direct Constraints</th>
+            <th>Indirect Experiments</th>
+            <th>Projected Bounds</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td id="direct-button-container"></td>
+            <td id="indirect-button-container"></td>
+            <td id="projected-button-container"></td>
+        </tr>
+        <!-- ... other rows as needed -->
+    </tbody>
+</table>
+
+<!-- Bokeh div will be injected here -->
+<div id="bokeh-plot">
+    {{ div | safe }}
+</div>
+
+<script>
+
+    // Define the data for each category
+    
+    const directData = [
+        { label: "BAW", color: "red", text: "Bulk Acoustic Wave devices (BAWs) work at resonance and cover the frequency range (10^6-10^9) Hz." },
+        { label: "HOL", color: "blue", text: "Holometer experiments measure the spatial correlations in position at different locations." },
+        { label: "Akutsu", color: "green", text: "Akutsu experiment explores gravitational waves within a certain frequency range." },
+        { label: "MagnonLow", color: "purple", text: "MagnonLow explores low frequency gravitational waves." },
+        { label: "MagnonHigh", color: "orange", text: "MagnonHigh focuses on high frequency gravitational wave detection." },
+        { label: "OSQAR", color: "pink", text: "OSQAR experiment aims to detect axions and other weakly interacting particles." },
+        { label: "CAST", color: "cyan", text: "CAST experiment looks for axion particles coming from the Sun." }
+    ];
+
+    const indirectData = [
+        { label: "ARCADEstrong", color: "grey", text: "ARCADEstrong sets stronger bounds on dark matter particle interactions." },
+        { label: "ARCADEweak", color: "lightblue", text: "ARCADEweak sets weaker, yet significant bounds on dark matter." },
+        { label: "EDGESstrong", color: "lightgreen", text: "EDGESstrong explores stronger bounds on early universe signals." },
+        { label: "EDGESweak", color: "lightgrey", text: "EDGESweak explores weaker bounds on early universe signals." }
+    ];
+
+    const projectedData = [
+        { label: "LSDstrong", color: "darkred", text: "LSDstrong is a projected bound for strong interaction limits." },
+        { label: "LSDweak", color: "darkblue", text: "LSDweak is a projected bound for weak interaction limits." },
+        { label: "IAXO", color: "darkgreen", text: "IAXO is a future project for axion detection." },
+        { label: "JURA", color: "darkpurple", text: "JURA is a future gravitational wave detector." },
+        { label: "ALPSII", color: "darkorange", text: "ALPSII is a future project for axion and ALP detection." },
+        { label: "IAXOHET", color: "darkpink", text: "IAXOHET is a heterostructure for axion detection." },
+        { label: "IAXOSPD", color: "darkcyan", text: "IAXOSPD is a single photon detector for axion detection." },
+        { label: "ADMX", color: "maroon", text: "ADMX is an experiment for axion dark matter detection." },
+        { label: "HAYSTAC", color: "navy", text: "HAYSTAC is a haloscope for axion dark matter detection." },
+        { label: "CAPP", color: "olive", text: "CAPP is a project for cold dark matter axions." },
+        { label: "SQMS", color: "teal", text: "SQMS is a single quantum magnetic sensor." },
+        { label: "ORGAN", color: "lime", text: "ORGAN is an orogenic gravitational wave analysis network." },
+        { label: "GaussianBeamWeak", color: "purple", text: "GaussianBeamWeak is a weak beam analysis method." },
+        { label: "GaussianBeamStrong", color: "violet", text: "GaussianBeamStrong is a strong beam analysis method." }
+    ];
+
+
+    function createButtons(dataArray, containerId) {
+        const container = document.getElementById(containerId);
+        dataArray.forEach(item => {
+            const flexContainer = document.createElement('div');
+            flexContainer.className = 'flex-container';
+
+            const button = document.createElement('button');
+            button.innerText = item.label;
+            button.className = 'custom-button';
+            button.style.backgroundColor = item.color;  // Set button color from item object
+            button.onclick = function() { updatePlot(item.label); };  // Add this line
+
+            flexContainer.appendChild(button);
+
+            const explanationText = document.createElement('span');
+            explanationText.className = 'explanation-text';
+            explanationText.innerText = item.text;  // Set text from item object
+
+            flexContainer.appendChild(explanationText);
+            container.appendChild(flexContainer);
+        });
+    }
+
+
+    // Create buttons for each category
+    createButtons(directData, 'direct-button-container');
+    createButtons(indirectData, 'indirect-button-container');
+    createButtons(projectedData, 'projected-button-container');
+
+</script>
+
+<div id="buttons">
+    <!-- Direct Bounds Buttons -->
+    {% for label in labelDirectBounds %}
+        <button onclick="updatePlot('{{ label }}')">{{ label }}</button>
+    {% endfor %}
+        
+    <!-- Indirect Bounds Buttons -->
+    {% for label in labelIndirectBounds %}
+        <button onclick="updatePlot('{{ label }}')">{{ label }}</button>
+    {% endfor %}
+        
+    <!-- Projections Buttons -->
+    {% for label in labelProjections %}
+        <button onclick="updatePlot('{{ label }}')">{{ label }}</button>
+    {% endfor %}
+</div>
+
+<script type="text/javascript">
+function updatePlot(button_label) {
+    fetch(`/update_plot?button_label=${button_label}`)
+        .then(response => response.json())
+        .then(new_data => {
+	    console.log(Bokeh.documents[0]);  // Add this line
+            console.log(button_label);  // Log button_label to the console
+            console.log(new_data);  // Log new_data to the console
+            const plot_source = Bokeh.documents[0].get_model_by_name('plot_source');
+            plot_source.data = new_data;
+            plot_source.change.emit();
+        }).catch(error => {
+        console.error('Fetch error:', error);
+    });
+}
+
+</script>
+
+</body>
+</html>
+

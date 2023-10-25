@@ -1,0 +1,3 @@
+#2011.12414 (cosmic strings, first part of the curve, up to the elbow)
+1.e-17.2055, 1.e-5.05272
+1.e8.79449, 1.e-31.0527
