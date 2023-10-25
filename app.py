@@ -37,26 +37,26 @@ from bokeh.models import RangeSlider, CustomJSTickFormatter, CustomJS, Slider  #
 
 ##Import SMASH benchmarks
 
-inflation_1_data=np.loadtxt('SignalCurves/CosmologicalSources/hc_inflation_SMASH/hc_inflation_SMASH_benchmark_1', dtype=float)
-inflation_2_data=np.loadtxt('SignalCurves/CosmologicalSources/hc_inflation_SMASH/hc_inflation_SMASH_benchmark_2', dtype=float)
-preheating_1_data=np.loadtxt('SignalCurves/CosmologicalSources/hc_inflation_SMASH/hc_preheating_SMASH_benchmark_1', dtype=float)
-preheating_2_data=np.loadtxt('SignalCurves/CosmologicalSources/hc_inflation_SMASH/hc_preheating_SMASH_benchmark_2', dtype=float)
-thermal_1_data=np.loadtxt('SignalCurves/CosmologicalSources/hc_inflation_SMASH/hc_thermal_SMASH_benchmark_1', dtype=float)
-thermal_2_data=np.loadtxt('SignalCurves/CosmologicalSources/hc_inflation_SMASH/hc_thermal_SMASH_benchmark_2', dtype=float)
+inflation_1_data=np.loadtxt('Curves/SignalCurves/CosmologicalSources/hc_inflation_SMASH/hc_inflation_SMASH_benchmark_1', dtype=float)
+inflation_2_data=np.loadtxt('Curves/SignalCurves/CosmologicalSources/hc_inflation_SMASH/hc_inflation_SMASH_benchmark_2', dtype=float)
+preheating_1_data=np.loadtxt('Curves/SignalCurves/CosmologicalSources/hc_inflation_SMASH/hc_preheating_SMASH_benchmark_1', dtype=float)
+preheating_2_data=np.loadtxt('Curves/SignalCurves/CosmologicalSources/hc_inflation_SMASH/hc_preheating_SMASH_benchmark_2', dtype=float)
+thermal_1_data=np.loadtxt('Curves/SignalCurves/CosmologicalSources/hc_inflation_SMASH/hc_thermal_SMASH_benchmark_1', dtype=float)
+thermal_2_data=np.loadtxt('Curves/SignalCurves/CosmologicalSources/hc_inflation_SMASH/hc_thermal_SMASH_benchmark_2', dtype=float)
 
 # Load Omega data for stochastic signal from PBHs.
 
-data_PBH6_Omega = np.loadtxt('SignalCurves/PBHs/Stochastic/PBH_StochasticOmega_mass6.csv', delimiter=',', dtype=float)
-data_PBH7_Omega = np.loadtxt('SignalCurves/PBHs/Stochastic/PBH_StochasticOmega_mass7.csv', delimiter=',', dtype=float)
-data_PBH8_Omega = np.loadtxt('SignalCurves/PBHs/Stochastic/PBH_StochasticOmega_mass8.csv', delimiter=',', dtype=float)
-data_PBH9_Omega = np.loadtxt('SignalCurves/PBHs/Stochastic/PBH_StochasticOmega_mass9.csv', delimiter=',', dtype=float)
-data_PBH10_Omega = np.loadtxt('SignalCurves/PBHs/Stochastic/PBH_StochasticOmega_mass10.csv', delimiter=',', dtype=float)
-data_PBH11_Omega = np.loadtxt('SignalCurves/PBHs/Stochastic/PBH_StochasticOmega_mass11.csv', delimiter=',', dtype=float)
-data_PBH12_Omega = np.loadtxt('SignalCurves/PBHs/Stochastic/PBH_StochasticOmega_mass12.csv', delimiter=',', dtype=float)
-data_PBH13_Omega = np.loadtxt('SignalCurves/PBHs/Stochastic/PBH_StochasticOmega_mass13.csv', delimiter=',', dtype=float)
-data_PBH14_Omega = np.loadtxt('SignalCurves/PBHs/Stochastic/PBH_StochasticOmega_mass14.csv', delimiter=',', dtype=float)
-data_PBH15_Omega = np.loadtxt('SignalCurves/PBHs/Stochastic/PBH_StochasticOmega_mass15.csv', delimiter=',', dtype=float)
-data_PBH16_Omega = np.loadtxt('SignalCurves/PBHs/Stochastic/PBH_StochasticOmega_mass16.csv', delimiter=',', dtype=float)
+data_PBH6_Omega = np.loadtxt('Curves/SignalCurves/PBHs/Stochastic/PBH_StochasticOmega_mass6.csv', delimiter=',', dtype=float)
+data_PBH7_Omega = np.loadtxt('Curves/SignalCurves/PBHs/Stochastic/PBH_StochasticOmega_mass7.csv', delimiter=',', dtype=float)
+data_PBH8_Omega = np.loadtxt('Curves/SignalCurves/PBHs/Stochastic/PBH_StochasticOmega_mass8.csv', delimiter=',', dtype=float)
+data_PBH9_Omega = np.loadtxt('Curves/SignalCurves/PBHs/Stochastic/PBH_StochasticOmega_mass9.csv', delimiter=',', dtype=float)
+data_PBH10_Omega = np.loadtxt('Curves/SignalCurves/PBHs/Stochastic/PBH_StochasticOmega_mass10.csv', delimiter=',', dtype=float)
+data_PBH11_Omega = np.loadtxt('Curves/SignalCurves/PBHs/Stochastic/PBH_StochasticOmega_mass11.csv', delimiter=',', dtype=float)
+data_PBH12_Omega = np.loadtxt('Curves/SignalCurves/PBHs/Stochastic/PBH_StochasticOmega_mass12.csv', delimiter=',', dtype=float)
+data_PBH13_Omega = np.loadtxt('Curves/SignalCurves/PBHs/Stochastic/PBH_StochasticOmega_mass13.csv', delimiter=',', dtype=float)
+data_PBH14_Omega = np.loadtxt('Curves/SignalCurves/PBHs/Stochastic/PBH_StochasticOmega_mass14.csv', delimiter=',', dtype=float)
+data_PBH15_Omega = np.loadtxt('Curves/SignalCurves/PBHs/Stochastic/PBH_StochasticOmega_mass15.csv', delimiter=',', dtype=float)
+data_PBH16_Omega = np.loadtxt('Curves/SignalCurves/PBHs/Stochastic/PBH_StochasticOmega_mass16.csv', delimiter=',', dtype=float)
 
 # Generate hc data.
 
@@ -254,43 +254,41 @@ on_buttons = set()
 plot_source = ColumnDataSource(data=dict(x=[], y=[]), name='plot_source')
 
 # Connect plot_source to fig using the line glyph method
-#fig.line(x='x', y='y', source=plot_source, line_width=2, alpha=0.8, legend_label="Data Line")
-fig.line(x='x_BAW', y='y_BAW', source=plot_source, line_width=2, alpha=0.8, legend_label="BAW")
-fig.line(x='x_LSDweak', y='y_LSDweak', source=plot_source, line_width=2, alpha=0.8, legend_label="LSD weak")
-fig.line(x='x_LSDstrong', y='y_LSDstrong', source=plot_source, line_width=2, alpha=0.8, legend_label="LSDstrong")
-
-# Define the global variable
-on_buttons = []
-
-# Define the initial dictionary
-curves_dict = {
-    'BAW': {'x': dataBAW[:,0], 'y': dataBAW[:,1]},
-    'LSDweak': {'x': dataLSDweak[:,0], 'y': dataLSDweak[:,1]},
-    'LSDstrong': {'x': dataLSDstrong[:,0], 'y': dataLSDstrong[:,1]}
-}
+fig.line(x='x', y='y', source=plot_source, line_width=2, alpha=0.8, legend_label="Data Line")
 
 def update_plot(button_label):
-    global on_buttons  # Declare on_buttons as global to modify it
+    global on_buttons
+    global plot_source
 
-    # Check if button is in on_buttons, and add or remove it accordingly
+    # Toggle the button state
     if button_label in on_buttons:
         on_buttons.remove(button_label)
     else:
-        on_buttons.append(button_label)
+        on_buttons.add(button_label)
 
-    # Initialize an empty dictionary to hold the result
-    result_dict = {}
+    # Collect all the data for "on" buttons
+    x_data = []
+    y_data = []
+    for button in on_buttons:
+        if button in labelDirectBounds:
+            index = labelDirectBounds.index(button)
+            data = dataDirectBounds[index]
+        elif button in labelIndirectBounds:
+            index = labelIndirectBounds.index(button)
+            data = dataIndirectBounds[index]
+        else:
+            index = labelProjections.index(button)
+            data = dataProjections[index]
 
-    # Iterate through each button in on_buttons and add the corresponding data to result_dict
-    for btn in on_buttons:
-        curve_data = curves_dict.get(btn, {})
-        for key, value in curve_data.items():
-            result_dict[f'{key}_{btn}'] = value
+        x_data.extend(data[:, 0])
+        y_data.extend(data[:, 1])
 
-    print(result_dict)
+    # Update the source object with the combined data
+    print(data)
+    plot_source.data = dict(x=x_data, y=y_data)
 
-    return result_dict
-
+    # Return the new data as a dictionary, to be sent back to the client
+    return {'x': x_data, 'y': y_data}
 
 app = Flask(__name__)
 
