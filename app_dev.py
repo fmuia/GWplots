@@ -7,6 +7,7 @@ from aux.data_files import detector_data
 from aux.aux_functions import load_and_categorize_data
 from aux.aux_functions import create_sliders
 from aux.aux_functions import create_curves_dict
+from aux.aux_functions import add_curves_to_plot
 from aux.aux_functions import update_plot
 
 # Define the on_buttons variable
@@ -70,13 +71,8 @@ print(curves_dict)
 # Global ColumnDataSource to manage plot data
 plot_source = ColumnDataSource(data=dict(), name='plot_source')
 
-# Add lines to the figure for each curve in curves_dict
-for label, data in curves_dict.items():
-    x_key = f'x_{label}'
-    y_key = f'y_{label}'
-    plot_source.add(data[x_key], x_key)
-    plot_source.add(data[y_key], y_key)
-    fig.line(x=x_key, y=y_key, source=plot_source, legend_label=label)
+# Link curves to a chart
+add_curves_to_plot(fig, curves_dict, plot_source, category_dict)
 
 ## Define app section
 

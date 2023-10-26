@@ -87,6 +87,46 @@ def create_curves_dict(data_instances):
         curves_dict[label] = {x_key: data_instance.x_coord, y_key: data_instance.y_coord}
     return curves_dict
 
+from bokeh.models import Line
+
+def add_curves_to_plot(fig, curves_dict, plot_source, category_dict):
+    """
+    This function adds lines to the figure for each curve in curves_dict
+    with different styles based on the category of each curve.
+    """
+
+    # Define styles for each category
+    styles = {
+        'IndBounds': {'line_color': 'blue', 'line_dash': 'solid'},
+        'DirBounds': {'line_color': 'red', 'line_dash': 'dashed'},
+        'ProjBounds': {'line_color': 'green', 'line_dash': 'dotdash'},
+        'Detectors': {'line_color': 'black', 'line_dash': 'dotted'}
+    }
+
+    for label, data in curves_dict.items():
+        x_key = f'x_{label}'
+        y_key = f'y_{label}'
+        plot_source.add(data[x_key], x_key)
+        plot_source.add(data[y_key], y_key)
+
+        # Determine the category of the curve
+        category = None
+        for cat, labels in category_dict.items():
+            if label in labels:
+                category = cat
+                break
+
+        # If the category is found, apply the corresponding style
+        if category:
+            style = styles.get(category, {})
+            fig.line(x=x_key, y=y_key, source=plot_source, legend_label=label,
+                     line_color=style.get('line_color', 'black'),
+                     line_dash=style.get('line_dash', 'solid'))
+        else:
+            # If the category is not found, use a default style
+            fig.line(x=x_key, y=y_key, source=plot_source, legend_label=label)
+
+
 # Define update_plot function
 def update_plot(button_label, curves_dict, on_buttons):
     #print("On buttons are: " + str(on_buttons))    
