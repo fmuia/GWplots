@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Gravitational Waves Plotter</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    {{ bokeh_css | safe }}
+</head>
+<body>
+<div class="container">
+    <div class="row">
+        <div class="col">
+            <table class="table table-bordered">
+                <thead>
+                <tr>
+                    <th scope="col">Direct Bounds</th>
+                    <th scope="col">Indirect Bounds</th>
+                    <th scope="col">Projected Bounds</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>
+                        <!-- Direct bounds buttons -->
+                        {% for label in category_dict.DirBounds %}
+                        <button type="button" class="btn btn-primary" onclick="updatePlot('{{ label }}')">{{ label }}</button><br>
+                        {% endfor %}
+                    </td>
+                    <td>
+                        <!-- Indirect bounds buttons -->
+                        {% for label in category_dict.IndBounds %}
+                        <button type="button" class="btn btn-primary" onclick="updatePlot('{{ label }}')">{{ label }}</button><br>
+                        {% endfor %}
+                    </td>
+                    <td>
+                        <!-- Projected bounds buttons -->
+                        {% for label in category_dict.ProjBounds %}
+                        <button type="button" class="btn btn-primary" onclick="updatePlot('{{ label }}')">{{ label }}</button><br>
+                        {% endfor %}
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+	    <div class="row">
+    		<div class="col">
+        	<!-- X Range Slider -->
+        	{{ div_x | safe }}
+       	        </div>
+	    </div>
+	    <div class="row">
+    		<div class="col">
+        	<!-- Y Range Slider -->
+        	{{ div_y | safe }}
+    	        </div>
+	    </div>
+	    <div class="row">
+    		<div class="col">
+        	<!-- Width Slider -->
+        	{{ div_width | safe }}
+    		</div>
+	    </div>
+	    <div class="row">
+    		<div class="col">
+        	<!-- Height Slider -->
+        	{{ div_height | safe }}
+    		</div>
+	    </div>	
+        </div>
+    </div>
+    <div class="row">
+        <div class="col">
+            {{ div | safe }}
+        </div>
+    </div>
+</div>
+<!-- Optional JavaScript -->
+<!-- jQuery first, then Popper.js, then Bootstrap JS -->
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+{{ bokeh_js | safe }}
+{{ script | safe }}
+
+<script type="text/javascript">
+    function updatePlot(label) {
+        // Function to handle button clicks and update the plot
+        $.ajax({
+            url: '/update_plot',
+            data: {button_label: label},
+            type: 'GET',
+            success: function (response) {
+                console.log(response);
+                // Update the plot using the response data
+            },
+            error: function (error) {
+                console.log(error);
+            }
+        });
+    }
+</script>
+</body>
+</html>
+

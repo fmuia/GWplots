@@ -7,6 +7,7 @@ from aux.data_files import detector_data
 from aux.aux_functions import load_and_categorize_data
 from aux.aux_functions import create_sliders
 from aux.aux_functions import create_curves_dict
+from aux.aux_functions import update_plot
 
 ## Load detector curves
 
@@ -62,3 +63,33 @@ slider_x, slider_y, slider_width, slider_height = create_sliders(fig)
 
 curves_dict = create_curves_dict(data_instances)
 print(curves_dict)
+
+## Define app section
+
+# Define the on_buttons variable
+on_buttons = []
+
+# Initialize app
+app = Flask(__name__)
+
+@app.route('/')
+def index():
+    script, div = components(layout([fig, slider_x, slider_y, slider_width, slider_height]))
+    return render_template(
+        'simple_layout.html',
+        script=script,
+        div=div,
+        bokeh_css=INLINE.render_css(),
+        bokeh_js=INLINE.render_js(),
+	category_dict=category_dict
+    )
+
+@app.route('/update_plot', methods=['GET'])
+def update_plot_route():
+    button_label = request.args.get('button_label')
+    new_data = update_plot(button_label)  # Call the update_plot function and update new_data
+    print(f'New Data: {new_data}')  # Debugging line
+    return jsonify(new_data)  # Return new_data to the client
+
+if __name__ == '__main__':
+    app.run(debug=True, port=5001)
