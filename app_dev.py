@@ -4,16 +4,23 @@
 
 from aux.imports import *
 from aux.data_files import detector_data
-from aux.aux_functions import load_data
+from aux.aux_functions import load_and_categorize_data
 from aux.aux_functions import create_sliders
+from aux.aux_functions import create_curves_dict
 
-# Load detector curves
+## Load detector curves
 
-for file_path, label in detector_data:
-    globals()[label.replace(' ', '_')] = load_data(file_path, label)
+# Initialize dictionary that will contain the Data class instances
+data_instances = {}
 
-print(BAW.x_coord)
-print(LSD_weak)
+# Load data into Data class instances collected in the dictionary data_instances and create a dictionary containing the experiment labels divided into categories (Indirect bounds, Direct bounds, Projected bounds)
+
+data_instances, category_dict = load_and_categorize_data(detector_data)
+
+print(data_instances['BAW'].x_coord)
+print(category_dict)
+
+
 
 
 
@@ -53,4 +60,7 @@ fig.output_backend = "svg"
 
 slider_x, slider_y, slider_width, slider_height = create_sliders(fig)
 
-print(slider_x)
+# Create dictionary of curves
+
+labels = ['BAW', 'LSDstrong', 'LSDweak', ...]
+curves_dict = create_curves_dict(data_instances)

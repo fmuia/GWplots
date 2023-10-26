@@ -11,10 +11,35 @@ class Data:
         if len(x_coord) != len(y_coord):
             raise Warning("x_coord and y_coord have different dimensions")
 
-def load_data(file_path, label):
-    data = np.loadtxt(file_path, delimiter=',', dtype=float)
-    x_coord, y_coord = data[:, 0], data[:, 1]
-    return Data(x_coord, y_coord, label)
+    def load_data(file_path, label, category):  # Update function signature to accept category
+        data = np.loadtxt(file_path, delimiter=',', dtype=float)
+        x_coord, y_coord = data[:, 0], data[:, 1]
+        return Data(x_coord, y_coord, label, category)  # Pass the category to Data initialization
+
+def load_and_categorize_data(detector_data):
+    data_instances = {}
+    category_dict = {
+        'IndBounds': [],
+        'DirBounds': [],
+        'ProjBounds': [],
+        'Detectors': []
+    }
+
+    for file_path, label, category in detector_data:
+        data_instances[label] = Data.load_data(file_path, label, category)
+
+        if category == 'Indirect bound':
+            category_dict['IndBounds'].append(label)
+        elif category == 'Direct bound':
+            category_dict['DirBounds'].append(label)
+        elif category == 'Projected bound':
+            category_dict['ProjBounds'].append(label)
+        
+        category_dict['Detectors'].append(label)
+    
+    return data_instances, category_dict
+
+# Create plot sliders
 
 def create_sliders(fig):
     range_slider_x = RangeSlider(
@@ -53,3 +78,10 @@ def create_sliders(fig):
 
     return range_slider_x, range_slider_y, slider_width, slider_height  # return the sliders if needed
 
+# Create dictionary of curves
+
+def create_curves_dict(data_instances):
+    curves_dict = {}
+    for label, data_instance in data_instances.items():
+        curves_dict[label] = {'x': data_instance.x_coord, 'y': data_instance.y_coord}
+    return curves_dict
