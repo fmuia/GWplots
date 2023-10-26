@@ -9,6 +9,9 @@ from aux.aux_functions import create_sliders
 from aux.aux_functions import create_curves_dict
 from aux.aux_functions import update_plot
 
+# Define the on_buttons variable
+on_buttons = []
+
 ## Load detector curves
 
 # Load data into Data class instances collected in the dictionary data_instances
@@ -64,10 +67,18 @@ slider_x, slider_y, slider_width, slider_height = create_sliders(fig)
 curves_dict = create_curves_dict(data_instances)
 print(curves_dict)
 
-## Define app section
+# Global ColumnDataSource to manage plot data
+plot_source = ColumnDataSource(data=dict(), name='plot_source')
 
-# Define the on_buttons variable
-on_buttons = []
+# Add lines to the figure for each curve in curves_dict
+for label, data in curves_dict.items():
+    x_key = f'x_{label}'
+    y_key = f'y_{label}'
+    plot_source.add(data[x_key], x_key)
+    plot_source.add(data[y_key], y_key)
+    fig.line(x=x_key, y=y_key, source=plot_source, legend_label=label)
+
+## Define app section
 
 # Initialize app
 app = Flask(__name__)
@@ -86,8 +97,9 @@ def index():
 
 @app.route('/update_plot', methods=['GET'])
 def update_plot_route():
+    global on_buttons
     button_label = request.args.get('button_label')
-    new_data = update_plot(button_label, on_buttons, curves_dict)  # Call the update_plot function and update new_data
+    new_data, on_buttons = update_plot(button_label, curves_dict, on_buttons)  # Call the update_plot function and update new_data
     print(f'New Data: {new_data}')  # Debugging line
     return jsonify(new_data)  # Return new_data to the client
 

@@ -100,8 +100,11 @@ function updatePlot(button_label) {
             // Initialize an empty object to hold the updated data
             let updated_data = {};
 
+	    // Extract unique curve labels from new_data keys
+	    let curve_labels = new Set(Object.keys(new_data).map(key => key.split('_')[1]));
+
             // Loop through each key in new_data and update plot_source.data
-            for (let curve_label of Object.keys(new_data)) {
+            for (let curve_label of curve_labels) {
                 if (curve_label.startsWith('x_') || curve_label.startsWith('y_')) {
                     updated_data[curve_label] = new_data[curve_label];
                 }
