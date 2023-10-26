@@ -10,10 +10,8 @@ from aux.aux_functions import create_curves_dict
 
 ## Load detector curves
 
-# Initialize dictionary that will contain the Data class instances
-data_instances = {}
-
-# Load data into Data class instances collected in the dictionary data_instances and create a dictionary containing the experiment labels divided into categories (Indirect bounds, Direct bounds, Projected bounds)
+# Load data into Data class instances collected in the dictionary data_instances
+# Create a dictionary category_dict containing the experiment labels divided into categories (Indirect bounds, Direct bounds, Projected bounds)
 
 data_instances, category_dict = load_and_categorize_data(detector_data)
 
@@ -25,7 +23,7 @@ print(category_dict)
 
 
 
-# Load signal curves
+## Load signal curves
 
 
 
