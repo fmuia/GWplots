@@ -104,9 +104,9 @@ def update_plot(button_label, curves_dict, on_buttons):
     for btn in on_buttons:
         curve_data = curves_dict.get(btn, {})
         for key, value in curve_data.items():
-            result_dict[f'{key}_{btn}'] = value.tolist()
+            result_dict[key] = value.tolist()
 
-    print(result_dict)
+    print("Result dict: " + str(result_dict))
     print(on_buttons)
 
     return result_dict, on_buttons

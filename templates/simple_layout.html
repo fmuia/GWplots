@@ -102,13 +102,14 @@ function updatePlot(button_label) {
 
 	    // Extract unique curve labels from new_data keys
 	    let curve_labels = new Set(Object.keys(new_data).map(key => key.split('_')[1]));
+	    console.log(curve_labels)
 
             // Loop through each key in new_data and update plot_source.data
             for (let curve_label of curve_labels) {
-                if (curve_label.startsWith('x_') || curve_label.startsWith('y_')) {
-                    updated_data[curve_label] = new_data[curve_label];
-                }
-            }
+	    if (new_data.hasOwnProperty(`x_${curve_label}`) && new_data.hasOwnProperty(`y_${curve_label}`)) {
+                    updated_data[`x_${curve_label}`] = new_data[`x_${curve_label}`];
+                    updated_data[`y_${curve_label}`] = new_data[`y_${curve_label}`];            
+	    }}
 
             plot_source.data = updated_data;
             plot_source.change.emit();
