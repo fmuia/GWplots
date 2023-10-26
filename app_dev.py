@@ -87,7 +87,7 @@ def index():
 @app.route('/update_plot', methods=['GET'])
 def update_plot_route():
     button_label = request.args.get('button_label')
-    new_data = update_plot(button_label)  # Call the update_plot function and update new_data
+    new_data = update_plot(button_label, on_buttons, curves_dict)  # Call the update_plot function and update new_data
     print(f'New Data: {new_data}')  # Debugging line
     return jsonify(new_data)  # Return new_data to the client
 

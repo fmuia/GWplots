@@ -84,22 +84,37 @@
 {{ script | safe }}
 
 <script type="text/javascript">
-    function updatePlot(label) {
-        // Function to handle button clicks and update the plot
-        $.ajax({
-            url: '/update_plot',
-            data: {button_label: label},
-            type: 'GET',
-            success: function (response) {
-                console.log(response);
-                // Update the plot using the response data
-            },
-            error: function (error) {
-                console.log(error);
+function updatePlot(button_label) {
+    console.log(button_label);
+    fetch(`/update_plot?button_label=${button_label}`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok ' + response.statusText);
             }
+            return response.json();
+        })
+        .then(new_data => {
+            const plot_source = Bokeh.documents[0].get_model_by_name('plot_source');
+            console.log(new_data);
+
+            // Initialize an empty object to hold the updated data
+            let updated_data = {};
+
+            // Loop through each key in new_data and update plot_source.data
+            for (let curve_label of Object.keys(new_data)) {
+                if (curve_label.startsWith('x_') || curve_label.startsWith('y_')) {
+                    updated_data[curve_label] = new_data[curve_label];
+                }
+            }
+
+            plot_source.data = updated_data;
+            plot_source.change.emit();
+        }).catch(error => {
+            console.error('Fetch error:', error);
         });
-    }
+}
 </script>
+
 </body>
 </html>
 

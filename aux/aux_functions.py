@@ -88,8 +88,8 @@ def create_curves_dict(data_instances):
     return curves_dict
 
 # Define update_plot function
-def update_plot(button_label):
-    global on_buttons  # Declare on_buttons as global to modify it
+def update_plot(button_label, on_buttons, curves_dict):
+    #global on_buttons  # Declare on_buttons as global to modify it
 
     # Check if button is in on_buttons, and add or remove it accordingly
     if button_label in on_buttons:
@@ -104,7 +104,7 @@ def update_plot(button_label):
     for btn in on_buttons:
         curve_data = curves_dict.get(btn, {})
         for key, value in curve_data.items():
-            result_dict[f'{key}_{btn}'] = value
+            result_dict[f'{key}_{btn}'] = value.tolist()
 
     print(result_dict)
 
