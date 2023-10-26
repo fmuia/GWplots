@@ -79,9 +79,11 @@ def create_sliders(fig):
     return range_slider_x, range_slider_y, slider_width, slider_height  # return the sliders if needed
 
 # Create dictionary of curves
-
 def create_curves_dict(data_instances):
     curves_dict = {}
     for label, data_instance in data_instances.items():
-        curves_dict[label] = {'x': data_instance.x_coord, 'y': data_instance.y_coord}
+        x_key = f'x_{label}'
+        y_key = f'y_{label}'
+        curves_dict[label] = {x_key: data_instance.x_coord, y_key: data_instance.y_coord}
     return curves_dict
+

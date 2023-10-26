@@ -60,5 +60,5 @@ slider_x, slider_y, slider_width, slider_height = create_sliders(fig)
 
 # Create dictionary of curves
 
-labels = ['BAW', 'LSDstrong', 'LSDweak', ...]
 curves_dict = create_curves_dict(data_instances)
+print(curves_dict)
