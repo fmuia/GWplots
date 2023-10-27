@@ -3,12 +3,14 @@
 # Import all the relevant libraries and packages
 
 from aux.imports import *
+import webbrowser
 from aux.data_files import detector_data
 from aux.aux_functions import load_and_categorize_data
 from aux.aux_functions import create_sliders
 from aux.aux_functions import create_curves_dict
 from aux.aux_functions import add_curves_to_plot
 from aux.aux_functions import update_plot
+from aux.aux_functions import open_browser
 
 # Define the on_buttons variable
 on_buttons = []
@@ -100,4 +102,5 @@ def update_plot_route():
     return jsonify(new_data)  # Return new_data to the client
 
 if __name__ == '__main__':
+#    threading.Timer(1, open_browser).start()  # Delay of 1 second before opening the browser
     app.run(debug=True, port=5001)

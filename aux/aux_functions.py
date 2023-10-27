@@ -1,6 +1,10 @@
 # aux_functions.py
 import numpy as np
+import webbrowser
 from bokeh.models import RangeSlider, CustomJSTickFormatter, CustomJS, Slider
+
+def open_browser():
+    webbrowser.open_new('http://127.0.0.1:5001/')
 
 class Data:
     def __init__(self, x_coord, y_coord, label, category=None):
@@ -106,8 +110,10 @@ def add_curves_to_plot(fig, curves_dict, plot_source, category_dict):
     for label, data in curves_dict.items():
         x_key = f'x_{label}'
         y_key = f'y_{label}'
-        plot_source.add(data[x_key], x_key)
-        plot_source.add(data[y_key], y_key)
+        #plot_source.add(data[x_key], x_key)
+        #plot_source.add(data[y_key], y_key)
+        plot_source.add([], x_key)  # I fixed the issue with the initial chart just by passing an empty list as initial condition
+        plot_source.add([], y_key)
 
         # Determine the category of the curve
         category = None
