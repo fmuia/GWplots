@@ -6,8 +6,6 @@ import numpy as np
 import pandas as pd
 import csv
 import hvplot.pandas
-import webbrowser
-import threading
 from matplotlib.pyplot import cm
 plt.rcParams['text.usetex'] = True
 

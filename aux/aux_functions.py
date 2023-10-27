@@ -1,10 +1,6 @@
 # aux_functions.py
 import numpy as np
-import webbrowser
 from bokeh.models import RangeSlider, CustomJSTickFormatter, CustomJS, Slider
-
-def open_browser():
-    webbrowser.open_new('http://127.0.0.1:5001/')
 
 class Data:
     def __init__(self, x_coord, y_coord, label, category=None):
