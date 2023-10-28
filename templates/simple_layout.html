@@ -7,12 +7,39 @@
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
     {{ bokeh_css | safe }}
+    <!-- Custom CSS -->
+    <style>
+        body, html {
+            height: 100%;
+            margin: 0;
+        }
+
+        .container-fluid {
+            height: 100%;
+        }
+
+        #plot-section, #controls-section {
+            height: 100%;
+            overflow-y: auto;  /* Allow vertical scrolling */
+            padding: 10px;
+        }
+
+        #controls-section {
+            background-color: #f8f9fa;  /* Light grey background for better distinction */
+            border-left: 1px solid #ddd; /* Add a border between the sections */
+        }
+    </style>
 </head>
 <body>
-<div class="container">
-    <div class="row">
-        <div class="col">
-            
+<div class="container-fluid h-100">
+    <div class="row h-100">
+        <!-- Plot Section (4/5 width) -->
+        <div class="col-md-8" id="plot-section">
+            {{ div | safe }}
+        </div>
+
+        <!-- Checkboxes and Sliders Section (1/5 width) -->
+        <div class="col-md-4" id="controls-section">
             <table class="table table-bordered">
                 <thead>
                 <tr>
@@ -58,41 +85,35 @@
                     </td>
                 </tr>
                 </tbody>
-           </table>
-
-
-	    <div class="row">
-    		<div class="col">
-        	<!-- X Range Slider -->
-        	{{ div_x | safe }}
-       	        </div>
-	    </div>
-	    <div class="row">
-    		<div class="col">
-        	<!-- Y Range Slider -->
-        	{{ div_y | safe }}
-    	        </div>
-	    </div>
-	    <div class="row">
-    		<div class="col">
-        	<!-- Width Slider -->
-        	{{ div_width | safe }}
-    		</div>
-	    </div>
-	    <div class="row">
-    		<div class="col">
-        	<!-- Height Slider -->
-        	{{ div_height | safe }}
-    		</div>
-	    </div>	
-        </div>
-    </div>
-    <div class="row">
-        <div class="col">
-            {{ div | safe }}
+            </table>
+            <div class="row">
+                <div class="col">
+                    <!-- X Range Slider -->
+                    {{ div_x | safe }}
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <!-- Y Range Slider -->
+                    {{ div_y | safe }}
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <!-- Width Slider -->
+                    {{ div_width | safe }}
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <!-- Height Slider -->
+                    {{ div_height | safe }}
+                </div>
+            </div>
         </div>
     </div>
 </div>
+
 <!-- Optional JavaScript -->
 <!-- jQuery first, then Popper.js, then Bootstrap JS -->
 <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
@@ -102,39 +123,40 @@
 {{ script | safe }}
 
 <script type="text/javascript">
-function updatePlot(button_label) {
-    console.log(button_label);
-    fetch(`/update_plot?button_label=${button_label}`)
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok ' + response.statusText);
-            }
-            return response.json();
-        })
-        .then(new_data => {
-            const plot_source = Bokeh.documents[0].get_model_by_name('plot_source');
-            console.log(new_data);
+    function updatePlot(button_label) {
+        console.log(button_label);
+        fetch(`/update_plot?button_label=${button_label}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok ' + response.statusText);
+                }
+                return response.json();
+            })
+            .then(new_data => {
+                const plot_source = Bokeh.documents[0].get_model_by_name('plot_source');
+                console.log(new_data);
 
-            // Initialize an empty object to hold the updated data
-            let updated_data = {};
+                // Initialize an empty object to hold the updated data
+                let updated_data = {};
 
-	    // Extract unique curve labels from new_data keys
-	    let curve_labels = new Set(Object.keys(new_data).map(key => key.split('_')[1]));
-	    console.log(curve_labels)
+                // Extract unique curve labels from new_data keys
+                let curve_labels = new Set(Object.keys(new_data).map(key => key.split('_')[1]));
+                console.log(curve_labels)
 
-            // Loop through each key in new_data and update plot_source.data
-            for (let curve_label of curve_labels) {
-	    if (new_data.hasOwnProperty(`x_${curve_label}`) && new_data.hasOwnProperty(`y_${curve_label}`)) {
-                    updated_data[`x_${curve_label}`] = new_data[`x_${curve_label}`];
-                    updated_data[`y_${curve_label}`] = new_data[`y_${curve_label}`];            
-	    }}
+                // Loop through each key in new_data and update plot_source.data
+                for (let curve_label of curve_labels) {
+                    if (new_data.hasOwnProperty(`x_${curve_label}`) && new_data.hasOwnProperty(`y_${curve_label}`)) {
+                        updated_data[`x_${curve_label}`] = new_data[`x_${curve_label}`];
+                        updated_data[`y_${curve_label}`] = new_data[`y_${curve_label}`];            
+                    }
+                }
 
-            plot_source.data = updated_data;
-            plot_source.change.emit();
-        }).catch(error => {
-            console.error('Fetch error:', error);
-        });
-}
+                plot_source.data = updated_data;
+                plot_source.change.emit();
+            }).catch(error => {
+                console.error('Fetch error:', error);
+            });
+    }
 </script>
 
 </body>
