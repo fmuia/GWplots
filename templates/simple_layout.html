@@ -12,6 +12,7 @@
 <div class="container">
     <div class="row">
         <div class="col">
+            
             <table class="table table-bordered">
                 <thead>
                 <tr>
@@ -23,26 +24,43 @@
                 <tbody>
                 <tr>
                     <td>
-                        <!-- Direct bounds buttons -->
+                        <!-- Direct bounds checkboxes -->
                         {% for label in category_dict.DirBounds %}
-                        <button type="button" class="btn btn-primary" onclick="updatePlot('{{ label }}')">{{ label }}</button><br>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="" id="{{ label }}" onclick="updatePlot('{{ label }}')">
+                            <label class="form-check-label" for="{{ label }}">
+                                {{ label }}
+                            </label>
+                        </div>
                         {% endfor %}
                     </td>
                     <td>
-                        <!-- Indirect bounds buttons -->
+                        <!-- Indirect bounds checkboxes -->
                         {% for label in category_dict.IndBounds %}
-                        <button type="button" class="btn btn-primary" onclick="updatePlot('{{ label }}')">{{ label }}</button><br>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="" id="{{ label }}" onclick="updatePlot('{{ label }}')">
+                            <label class="form-check-label" for="{{ label }}">
+                                {{ label }}
+                            </label>
+                        </div>
                         {% endfor %}
                     </td>
                     <td>
-                        <!-- Projected bounds buttons -->
+                        <!-- Projected bounds checkboxes -->
                         {% for label in category_dict.ProjBounds %}
-                        <button type="button" class="btn btn-primary" onclick="updatePlot('{{ label }}')">{{ label }}</button><br>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="" id="{{ label }}" onclick="updatePlot('{{ label }}')">
+                            <label class="form-check-label" for="{{ label }}">
+                                {{ label }}
+                            </label>
+                        </div>
                         {% endfor %}
                     </td>
                 </tr>
                 </tbody>
-            </table>
+           </table>
+
+
 	    <div class="row">
     		<div class="col">
         	<!-- X Range Slider -->
