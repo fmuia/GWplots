@@ -1,0 +1,11 @@
+Here is the structure of the app:
+
+GWplots/                      # project directory
+    static/
+        css/
+            styles.css
+        js/
+            scripts.js
+    templates/
+        index.html
+    app.py
