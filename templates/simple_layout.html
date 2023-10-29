@@ -28,137 +28,165 @@
             background-color: #f8f9fa;  /* Light grey background for better distinction */
             border-left: 1px solid #ddd; /* Add a border between the sections */
         }
+
+        #main-title {
+            font-size: 36px;  /* Adjust the size as needed */
+            text-align: left;  /* Align the title to the left */
+            margin-left: 2cm;  /* 2cm margin to the left */
+        }
+
+        #subtitle {
+            font-size: 18px;  /* Adjust the size as needed */
+            text-align: left;  /* Align the subtitle to the left */
+            margin-left: 2cm;  /* 2cm margin to the left */
+        }
     </style>
 </head>
 <body>
-<div class="container-fluid h-100">
-    <div class="row h-100">
-        <!-- Plot Section (4/5 width) -->
-        <div class="col-md-8" id="plot-section">
-            {{ div | safe }}
-        </div>
+    <h1 id="main-title">Gravitational Waves Plotter</h1>
+    <h2 id="subtitle">Edited and maintained by Francesco Muia, Andreas Ringwald and Carlos Tamarit</h2>
+    <div class="container-fluid h-100">
+        <div class="row h-100">
+            <!-- Plot Section (4/5 width) -->
+            <div class="col-md-8" id="plot-section">
+                {{ div | safe }}
+            </div>
 
-        <!-- Checkboxes and Sliders Section (1/5 width) -->
-        <div class="col-md-4" id="controls-section">
-            <table class="table table-bordered">
-                <thead>
-                <tr>
-                    <th scope="col">Direct Bounds</th>
-                    <th scope="col">Indirect Bounds</th>
-                    <th scope="col">Projected Bounds</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr>
-                    <td>
-                        <!-- Direct bounds checkboxes -->
-                        {% for label in category_dict.DirBounds %}
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" value="" id="{{ label }}" onclick="updatePlot('{{ label }}')">
-                            <label class="form-check-label" for="{{ label }}">
-                                {{ label }}
-                            </label>
-                        </div>
-                        {% endfor %}
-                    </td>
-                    <td>
-                        <!-- Indirect bounds checkboxes -->
-                        {% for label in category_dict.IndBounds %}
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" value="" id="{{ label }}" onclick="updatePlot('{{ label }}')">
-                            <label class="form-check-label" for="{{ label }}">
-                                {{ label }}
-                            </label>
-                        </div>
-                        {% endfor %}
-                    </td>
-                    <td>
-                        <!-- Projected bounds checkboxes -->
-                        {% for label in category_dict.ProjBounds %}
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" value="" id="{{ label }}" onclick="updatePlot('{{ label }}')">
-                            <label class="form-check-label" for="{{ label }}">
-                                {{ label }}
-                            </label>
-                        </div>
-                        {% endfor %}
-                    </td>
-                </tr>
-                </tbody>
-            </table>
-            <div class="row">
-                <div class="col">
-                    <!-- X Range Slider -->
-                    {{ div_x | safe }}
+            <!-- Checkboxes and Sliders Section (1/5 width) -->
+            <div class="col-md-4" id="controls-section">
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th colspan="3">Bounds</th>
+                        </tr>
+                        <tr>
+                            <th scope="col">Direct Bounds</th>
+                            <th scope="col">Indirect Bounds</th>
+                            <th scope="col">Projected Bounds</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" value="" id="direct-1" onclick="updatePlot('direct-1')">
+                                    <label class="form-check-label" for="direct-1">
+                                        Direct 1
+                                    </label>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" value="" id="indirect-1" onclick="updatePlot('indirect-1')">
+                                    <label class="form-check-label" for="indirect-1">
+                                        Indirect 1
+                                    </label>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" value="" id="projected-1" onclick="updatePlot('projected-1')">
+                                    <label class="form-check-label" for="projected-1">
+                                        Projected 1
+                                    </label>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th colspan="2">Gravitational Wave Signal</th>
+                        </tr>
+                        <tr>
+                            <th scope="col">Coherent Signals</th>
+                            <th scope="col">Stochastic Signal</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <!-- Coherent signals checkboxes -->
+                            </td>
+                            <td>
+                                <!-- Stochastic signal checkboxes -->
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="row">
+                    <div class="col">
+                        <!-- X Range Slider -->
+                        {{ div_x | safe }}
+                    </div>
                 </div>
-            </div>
-            <div class="row">
-                <div class="col">
-                    <!-- Y Range Slider -->
-                    {{ div_y | safe }}
+                <div class="row">
+                    <div class="col">
+                        <!-- Y Range Slider -->
+                        {{ div_y | safe }}
+                    </div>
                 </div>
-            </div>
-            <div class="row">
-                <div class="col">
-                    <!-- Width Slider -->
-                    {{ div_width | safe }}
+                <div class="row">
+                    <div class="col">
+                        <!-- Width Slider -->
+                        {{ div_width | safe }}
+                    </div>
                 </div>
-            </div>
-            <div class="row">
-                <div class="col">
-                    <!-- Height Slider -->
-                    {{ div_height | safe }}
+                <div class="row">
+                    <div class="col">
+                        <!-- Height Slider -->
+                        {{ div_height | safe }}
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
 
-<!-- Optional JavaScript -->
-<!-- jQuery first, then Popper.js, then Bootstrap JS -->
-<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
-{{ bokeh_js | safe }}
-{{ script | safe }}
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+    {{ bokeh_js | safe }}
+    {{ script | safe }}
 
-<script type="text/javascript">
-    function updatePlot(button_label) {
-        console.log(button_label);
-        fetch(`/update_plot?button_label=${button_label}`)
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok ' + response.statusText);
-                }
-                return response.json();
-            })
-            .then(new_data => {
-                const plot_source = Bokeh.documents[0].get_model_by_name('plot_source');
-                console.log(new_data);
-
-                // Initialize an empty object to hold the updated data
-                let updated_data = {};
-
-                // Extract unique curve labels from new_data keys
-                let curve_labels = new Set(Object.keys(new_data).map(key => key.split('_')[1]));
-                console.log(curve_labels)
-
-                // Loop through each key in new_data and update plot_source.data
-                for (let curve_label of curve_labels) {
-                    if (new_data.hasOwnProperty(`x_${curve_label}`) && new_data.hasOwnProperty(`y_${curve_label}`)) {
-                        updated_data[`x_${curve_label}`] = new_data[`x_${curve_label}`];
-                        updated_data[`y_${curve_label}`] = new_data[`y_${curve_label}`];            
+    <script type="text/javascript">
+        function updatePlot(button_label) {
+            console.log(button_label);
+            fetch(`/update_plot?button_label=${button_label}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok ' + response.statusText);
                     }
-                }
+                    return response.json();
+                })
+                .then(new_data => {
+                    const plot_source = Bokeh.documents[0].get_model_by_name('plot_source');
+                    console.log(new_data);
 
-                plot_source.data = updated_data;
-                plot_source.change.emit();
-            }).catch(error => {
-                console.error('Fetch error:', error);
-            });
-    }
-</script>
+                    // Initialize an empty object to hold the updated data
+                    let updated_data = {};
 
+                    // Extract unique curve labels from new_data keys
+                    let curve_labels = new Set(Object.keys(new_data).map(key => key.split('_')[1]));
+                    console.log(curve_labels)
+
+                    // Loop through each key in new_data and update plot_source.data
+                    for (let curve_label of curve_labels) {
+                        if (new_data.hasOwnProperty(`x_${curve_label}`) && new_data.hasOwnProperty(`y_${curve_label}`)) {
+                            updated_data[`x_${curve_label}`] = new_data[`x_${curve_label}`];
+                            updated_data[`y_${curve_label}`] = new_data[`y_${curve_label}`];
+                        }
+                    }
+
+                    plot_source.data = updated_data;
+                    plot_source.change.emit();
+                }).catch(error => {
+                    console.error('Fetch error:', error);
+                });
+        }
+    </script>
 </body>
 </html>
 
