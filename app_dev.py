@@ -3,6 +3,7 @@
 # Import all the relevant libraries and packages
 
 from aux.imports import *
+from bokeh.models import SaveTool
 from aux.data_files import detector_data
 from aux.aux_functions import load_and_categorize_data
 from aux.aux_functions import create_sliders
