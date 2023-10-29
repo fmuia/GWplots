@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
     {{ bokeh_css | safe }}
     <!-- Custom CSS -->
+    
     <style>
         body, html {
             height: 100%;
@@ -29,6 +30,10 @@
             border-left: 1px solid #ddd; /* Add a border between the sections */
         }
 
+        #title-section {
+            margin-bottom: 20px;  /* Add some space below the title section */
+        }
+
         #title {
             margin-left: 2cm;
         }
@@ -42,19 +47,20 @@
 </head>
 <body>
 <div class="container-fluid h-100">
-    <div class="row">
-        <div class="col-md-12" id="title">
-            <h1>Gravitational Waves Plotter</h1>
-        </div>
-        <div class="col-md-12" id="subtitle">
-            <p>Edited and maintained by Francesco Muia, Andreas Ringwald, and Carlos Tamarit</p>
-        </div>
-    </div>
     <div class="row h-100">
         <!-- Plot Section (4/5 width) -->
         <div class="col-md-8" id="plot-section">
+            <div id="title-section">
+                <div class="col-md-12" id="title">
+                    <h1>Gravitational Waves Plotter</h1>
+                </div>
+                <div class="col-md-12" id="subtitle">
+                    <p>Edited and maintained by Francesco Muia, Andreas Ringwald, and Carlos Tamarit</p>
+                </div>
+            </div>
             {{ div | safe }}
         </div>
+
 
                 <!-- Checkboxes and Sliders Section (1/5 width) -->
         <div class="col-md-4" id="controls-section">
