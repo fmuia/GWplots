@@ -84,7 +84,7 @@ app = Flask(__name__)
 def index():
     script, div = components(layout([fig, slider_x, slider_y, slider_width, slider_height]))
     return render_template(
-        'simple_layout.html',
+        'index.html',
         script=script,
         div=div,
         bokeh_css=INLINE.render_css(),
