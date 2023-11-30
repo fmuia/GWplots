@@ -4,7 +4,7 @@
 
 from aux.imports import *
 from bokeh.models import SaveTool
-from aux.data_files import detector_data
+from aux.data_files import detector_data,signal_data
 from aux.aux_functions import load_and_categorize_data
 from aux.aux_functions import create_sliders
 from aux.aux_functions import create_curves_dict
@@ -19,10 +19,19 @@ on_buttons = []
 # Load data into Data class instances collected in the dictionary data_instances
 # Create a dictionary category_dict containing the experiment labels divided into categories (Indirect bounds, Direct bounds, Projected bounds)
 
-data_instances, category_dict = load_and_categorize_data(detector_data)
+data_instances, category_dict = load_and_categorize_data(detector_data, signal_data)
+ 
+# print('This are the data instances:')
+#
+# print(data_instances['BAW'].x_coord)
+# print(data_instances['BAW'].y_coord)
+# print(data_instances['BAW'].color)
+# print(data_instances['BAW'].depth)
 
-print(data_instances['BAW'].x_coord)
+print('This is the category dictionary:')
 print(category_dict)
+#print(data_instances['BAW'].x_coord)
+#print(category_dict)
 
 
 
@@ -59,6 +68,8 @@ fig = figure(background_fill_color='white',
              toolbar_location='below',
              tools='save')
 fig.output_backend = "svg"
+fig.xgrid.level = 'image'
+fig.ygrid.level = 'image'
 
 # Set up the sliders
 
@@ -66,14 +77,17 @@ slider_x, slider_y, slider_width, slider_height = create_sliders(fig)
 
 # Create dictionary of curves
 
-curves_dict = create_curves_dict(data_instances)
+curves_dict = create_curves_dict(data_instances, category_dict, hmax)
+print('This is the curves dictionary:')
 print(curves_dict)
 
 # Global ColumnDataSource to manage plot data
 plot_source = ColumnDataSource(data=dict(), name='plot_source')
+plot_source_proj = ColumnDataSource(data=dict(), name='plot_source_proj')
+plot_source_proj_curves = ColumnDataSource(data=dict(), name='plot_source_proj_curves')
 
 # Link curves to a chart
-add_curves_to_plot(fig, curves_dict, plot_source, category_dict)
+add_curves_to_plot(fig, curves_dict, category_dict, plot_source, plot_source_proj, plot_source_proj_curves)
 
 ## Define app section
 
@@ -97,7 +111,7 @@ def update_plot_route():
     global on_buttons
     button_label = request.args.get('button_label')
     new_data, on_buttons = update_plot(button_label, curves_dict, on_buttons)  # Call the update_plot function and update new_data
-    print(f'New Data: {new_data}')  # Debugging line
+    #print(f'New Data: {new_data}')  # Debugging line
     return jsonify(new_data)  # Return new_data to the client
 
 if __name__ == '__main__':

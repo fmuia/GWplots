@@ -1,7 +1,11 @@
 #Fermilab Holometer arXiv:1611.05560 [astro-ph.IM]
 #Old values
-1e6,2.5e-18
+#1e6,2.5e-18
 #1.3e7,2.4e-19
 #Recomputed from Omega bound
 1e6,2e-18
 1.3e7,6.0e-19
+#bogus points
+1.3e7,1.e-12
+1e6,1e-12
+1e6,2e-18
