@@ -78,8 +78,8 @@ slider_x, slider_y, slider_width, slider_height = create_sliders(fig)
 # Create dictionary of curves
 
 curves_dict = create_curves_dict(data_instances, category_dict, hmax)
-print('This is the curves dictionary:')
-print(curves_dict)
+#print('This is the curves dictionary:')
+#print(curves_dict)
 
 # Global ColumnDataSource to manage plot data
 plot_source = ColumnDataSource(data=dict(), name='plot_source')

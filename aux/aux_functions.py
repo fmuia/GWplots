@@ -112,7 +112,6 @@ def create_curves_dict(data_instances, category_dict, hmax):
                 break
         if (category == 'ProjBoundsCurves') or (category == 'SignalCurves'):
             maxLengthProjBounds = max(maxLengthProjBounds, len(data_instance.x_coord))
-    print('maxLengthProjBounds: ',maxLengthProjBounds )
     for label, data_instance in data_instances.items():
         color_key = f'color_{label}'
         linewidth_key = f'linewidth_{label}'
@@ -188,10 +187,7 @@ def add_curves_to_plot(fig, curves_dict, category_dict, plot_source, plot_source
         linestyle_key = f'linestyle_{label}'
         opacity_key = f'opacity_{label}'
         depth_key = f'depth_{label}'
-        #print('label, xkey: ',label,' ',x_key)
-        #print('data: ', data[x_key])
-        #plot_source.add(data[x_key], x_key)
-        #plot_source.add(data[y_key], y_key)
+        
 
     
 
@@ -199,7 +195,6 @@ def add_curves_to_plot(fig, curves_dict, category_dict, plot_source, plot_source
 
         # If the category is found, apply the corresponding style
         if category:
-            print(category)
             if (category == 'ProjBounds'):
                 #in this case line plot
                 plotsource = plot_source_proj
@@ -270,7 +265,7 @@ def update_plot(button_label, curves_dict, on_buttons):
             else:
                 result_dict[key] = value.tolist()
 
-    print("Result dict: " + str(result_dict))
-    print("On_buttons: ", on_buttons)
+    #print("Result dict: " + str(result_dict))
+    #print("On_buttons: ", on_buttons)
 
     return result_dict, on_buttons
