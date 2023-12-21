@@ -53,8 +53,26 @@ function updatePlot(button_label) {
             
             plot_source_proj_curves.data = updated_data_proj_curves;
             plot_source_proj_curves.change.emit();
+
+
+        // Call toggleAnnotationVisibility for the clicked label
+            const checkbox = document.getElementById(button_label);
+            if (checkbox) {
+                toggleAnnotationVisibility(button_label, checkbox.checked);
+            }
         }).catch(error => {
             console.error('Fetch error:', error);
         });
+}
+
+function toggleAnnotationVisibility(curveLabel, isVisible) {
+    var annotation = Bokeh.documents[0].get_model_by_name(`annotation_${curveLabel}`);
+    console.log(`Annotation for ${curveLabel} found: `, annotation);
+
+    if (annotation) {
+        console.log(`Current visibility of ${curveLabel}: `, annotation.visible);
+        annotation.visible = isVisible; // Toggle visibility
+        console.log(`New visibility of ${curveLabel}: `, annotation.visible);
+    }
 }
 

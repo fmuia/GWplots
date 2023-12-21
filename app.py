@@ -28,8 +28,8 @@ data_instances, category_dict = load_and_categorize_data(detector_data, signal_d
 # print(data_instances['BAW'].color)
 # print(data_instances['BAW'].depth)
 
-print('This is the category dictionary:')
-print(category_dict)
+#print('This is the category dictionary:')
+#print(category_dict)
 #print(data_instances['BAW'].x_coord)
 #print(category_dict)
 

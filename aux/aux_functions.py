@@ -1,6 +1,6 @@
 # aux_functions.py
 import numpy as np
-from bokeh.models import RangeSlider, CustomJSTickFormatter, CustomJS, Slider
+from bokeh.models import RangeSlider, CustomJSTickFormatter, CustomJS, Slider, LabelSet, ColumnDataSource
 
 class Data:
     def __init__(self, x_coord, y_coord, color, linewidth, linestyle, opacity, depth, label, category=None):
@@ -189,10 +189,6 @@ def add_curves_to_plot(fig, curves_dict, category_dict, plot_source, plot_source
         depth_key = f'depth_{label}'
         
 
-    
-
-
-
         # If the category is found, apply the corresponding style
         if category:
             if (category == 'ProjBounds'):
@@ -202,6 +198,8 @@ def add_curves_to_plot(fig, curves_dict, category_dict, plot_source, plot_source
                 y_key = f'y_{label}'
                 plotsource.add([], x_key)
                 plotsource.add([], y_key)
+                annotation_x = data[x_key][0]
+                annotation_y = data[y_key][0]
                 fig.line(x = x_key, y = y_key, source=plotsource,  color = data[color_key], line_width = data[linewidth_key], line_dash = data[linestyle_key], line_alpha = data[opacity_key], level = data[depth_key])#linewdith, linestyle, legend_label=label,
             elif (category == 'ProjBoundsCurves') or (category == 'SignalCurves') :
                 #also line plot but use different names
@@ -210,6 +208,8 @@ def add_curves_to_plot(fig, curves_dict, category_dict, plot_source, plot_source
                 y_key = f'yCurve_{label}'
                 plotsource.add([], x_key)
                 plotsource.add([], y_key)
+                annotation_x = data[x_key][0]
+                annotation_y = data[y_key][0]
                 fig.line(x = x_key, y = y_key, source=plotsource,  color = data[color_key], line_width = data[linewidth_key], line_dash = data[linestyle_key], line_alpha = data[opacity_key], level = data[depth_key])
             else:
                 #in this case current bounds area plot
@@ -220,26 +220,26 @@ def add_curves_to_plot(fig, curves_dict, category_dict, plot_source, plot_source
                 plotsource.add([], x_key)
                 plotsource.add([], y_key)
                 plotsource.add([], y2_key)
+                annotation_x = data[x_key][0]
+                annotation_y = data[y_key][0]
                 fig.varea(x = x_key, y1 = y_key, y2=y2_key, source=plotsource,  color = data[color_key], alpha = data[opacity_key], level = data[depth_key])#legend_label=label,
-            #fig.line(x = x_key, y = y_key, source=plot_source, legend_label=label, color = 'orange')
-            #fig.line(x=x_key, y=y_key, source=plot_source, legend_label=label,
-            #         line_color=style.get('line_color', 'black'),
-            #         line_dash=style.get('line_dash', 'solid'))
-        #else:
-            # If the category is not found, use a default style
-        #    fig.varea(x = x_key, y1 = y_key, y2 = y2_key, source=plot_source, legend_label=label, color = 'orange')
-            #fig.line(x=x_key, y=y_key, source=plot_source, legend_label=label)
 
 
-#fig.line(x = np.append(np.append( d[:,0],np.flip( d[:,0])),d[0,0]),  y = np.append(np.append(d[:,1],[hmax,hmax]),d[0,1]), line_color = colorProjections[i], line_width = 2, line_dash = linestylesProjections(i))
- # currentPlot = fig.varea(x= dataDirectBounds[i][:,0],
- #       y1 =  dataDirectBounds[i][:,1],
- #       y2=[10**-2 for _ in range(len(dataDirectBounds[i]))],color = colorDirectBounds[i], fill_alpha = opacityDirectBounds[i], level =  levelDirectBounds[i])
- #   plots.append(currentPlot)
- #   currentToggle = Toggle(label = labelDirectBounds[i], stylesheets=[button_style_direct],active = True)#$button_type="warning", active=True)
- #   currentToggle.js_link('active', currentPlot, 'visible')
- #   togglesDirect.append(currentToggle)
+        annotation_text = f"{label}"
 
+        # Create a separate ColumnDataSource for each annotation
+        annotation_source = ColumnDataSource({
+            'x': [annotation_x],
+            'y': [annotation_y],
+            'text': [annotation_text]
+        })
+
+        # Create and add the LabelSet for the annotation
+        annotation = LabelSet(x='x', y='y', text='text',
+                              x_offset=5, y_offset=5, source=annotation_source,
+                              text_font_size='10pt', visible=False,
+                              name=f"annotation_{label}")  # Unique name
+        fig.add_layout(annotation)
 
 
 
