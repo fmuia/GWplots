@@ -64,7 +64,6 @@ Contributions to GWplots are welcome, whether they be in the form of feature req
 
 ## License
 
-
 This is a public project, open to everyone, and aimed at serving the scientific community by providing a standard yet fully customizable gravitational waves plotter.
 
 Users are free to use, modify, and distribute this software. If you utilize this project in your research or in any other capacity, please acknowledge the authors by citing the relevant publications.
