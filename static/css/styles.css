@@ -32,3 +32,10 @@ body, html {
     font-size: smaller;
 }
 
+.comments-box {
+    margin-top: 20px;
+    border: 1px solid #ccc;
+    padding: 10px;
+    height: 100px; /* Or any suitable height */
+    overflow-y: auto; /* For scrollable content */
+}

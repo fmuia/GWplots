@@ -3,7 +3,7 @@ import numpy as np
 from bokeh.models import RangeSlider, CustomJSTickFormatter, CustomJS, Slider, LabelSet, ColumnDataSource
 
 class Data:
-    def __init__(self, x_coord, y_coord, color, linewidth, linestyle, opacity, depth, label, category=None):
+    def __init__(self, x_coord, y_coord, color, linewidth, linestyle, opacity, depth, label, category=None, comment=None):
         self.x_coord = x_coord
         self.y_coord = y_coord
         self.color = color
@@ -13,10 +13,12 @@ class Data:
         self.depth = depth
         self.label = label
         self.category = category
+        self.comment = comment
+
         if len(x_coord) != len(y_coord):
             raise Warning("x_coord and y_coord have different dimensions")
 
-    def load_data(file_path, color, linewidth, linestyle, opacity, depth, label, category):  # Update function signature to accept category
+    def load_data(file_path, color, linewidth, linestyle, opacity, depth, label, category, comment):  # Update function signature to accept category
         if (category == 'Projected curve') or (category == 'Signal curve'):
             data = np.loadtxt(file_path, dtype=float)
             x_coord, y_coord = data[:, 0], data[:, 1]
@@ -24,7 +26,7 @@ class Data:
             data = np.loadtxt(file_path, delimiter=',', dtype=float)
             x_coord, y_coord = data[:, 0], data[:, 1]
 
-        return Data(x_coord, y_coord, color, linewidth, linestyle, opacity, depth, label, category)  # Pass the category to Data initialization
+        return Data(x_coord, y_coord, color, linewidth, linestyle, opacity, depth, label, category, comment)  # Pass the category to Data initialization
 
 def load_and_categorize_data(detector_data, signal_data):
     data_instances = {}
@@ -36,8 +38,9 @@ def load_and_categorize_data(detector_data, signal_data):
         'SignalCurves': []
     }
 
-    for file_path, label, category, color, linewidth, linestyle, opacity, depth in detector_data:
-        data_instances[label] = Data.load_data(file_path, color, linewidth, linestyle, opacity, depth, label, category)
+    # Update the loop to handle the comment field
+    for file_path, label, category, color, linewidth, linestyle, opacity, depth, comment in detector_data:
+        data_instances[label] = Data.load_data(file_path, color, linewidth, linestyle, opacity, depth, label, category, comment)
 
         if category == 'Indirect bound':
             category_dict['IndBounds'].append(label)
@@ -50,15 +53,14 @@ def load_and_categorize_data(detector_data, signal_data):
         elif category == 'Signal curve':
             category_dict['SignalCurves'].append(label)
             
-    for file_path, label, category, color, linewidth, linestyle, opacity, depth in signal_data:
-        data_instances[label] = Data.load_data(file_path, color, linewidth, linestyle, opacity, depth, label, category)
+    for file_path, label, category, color, linewidth, linestyle, opacity, depth, comment in signal_data:
+        data_instances[label] = Data.load_data(file_path, color, linewidth, linestyle, opacity, depth, label, category, comment)
 
         if category == 'Signal curve':
             category_dict['SignalCurves'].append(label)
 
-        #category_dict['Detectors'].append(label)
-    
     return data_instances, category_dict
+
 
 # Create plot sliders
 

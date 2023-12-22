@@ -14,36 +14,18 @@ from aux.aux_functions import update_plot
 # Define the on_buttons variable
 on_buttons = []
 
+# Define the global variable
+data_instances = {}
+
+# Inside some initialization function or at the start of the app
+data_instances, category_dict = load_and_categorize_data(detector_data, signal_data)
+
 ## Load detector curves
 
 # Load data into Data class instances collected in the dictionary data_instances
 # Create a dictionary category_dict containing the experiment labels divided into categories (Indirect bounds, Direct bounds, Projected bounds)
 
 data_instances, category_dict = load_and_categorize_data(detector_data, signal_data)
- 
-# print('This are the data instances:')
-#
-# print(data_instances['BAW'].x_coord)
-# print(data_instances['BAW'].y_coord)
-# print(data_instances['BAW'].color)
-# print(data_instances['BAW'].depth)
-
-#print('This is the category dictionary:')
-#print(category_dict)
-#print(data_instances['BAW'].x_coord)
-#print(category_dict)
-
-
-
-
-
-
-## Load signal curves
-
-
-
-
-
 
 # Set up the figure
 
@@ -94,9 +76,17 @@ add_curves_to_plot(fig, curves_dict, category_dict, plot_source, plot_source_pro
 # Initialize app
 app = Flask(__name__)
 
+@app.route('/get_comments')
+def get_comments():
+    label = request.args.get('label')
+    data_instance = data_instances.get(label, None)
+    comment = data_instance.comment if data_instance and data_instance.comment not in [None, ''] else None
+    
+    return jsonify({'comment': comment})
+
 @app.route('/')
 def index():
-    script, div = components(layout([fig, slider_x, slider_y, slider_width, slider_height]))
+    script, div = components(layout([fig]))#, slider_x, slider_y, slider_width, slider_height]))
     return render_template(
         'index.html',
         script=script,
