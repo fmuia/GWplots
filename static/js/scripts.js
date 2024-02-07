@@ -1,4 +1,27 @@
 // static/js/scripts.js
+
+function waitForBokeh() {
+    if (typeof Bokeh !== 'undefined' && Bokeh.documents && Bokeh.documents[0]) {
+        exploreBokehDocument(Bokeh.documents[0]);
+    } else {
+        // Wait a bit and then try again
+        setTimeout(waitForBokeh, 100);
+    }
+}
+
+function exploreBokehDocument(doc) {
+    if (doc.roots) {
+        doc.roots().forEach(root => {
+            console.log('Root:', root);
+        });
+    }
+}
+
+// Start the process
+waitForBokeh();
+
+
+
 function updatePlot(button_label) {
     console.log(button_label);
     fetch(`/update_plot?button_label=${button_label}`)
@@ -120,3 +143,47 @@ function displayComments() {
     commentsBox.innerHTML = allCommentsHtml;  // Set as innerHTML to render HTML content
 }
 
+
+document.addEventListener('DOMContentLoaded', function() {
+    console.log("Bokeh Document:", Bokeh.documents[0]);
+    Bokeh.documents[0].roots().forEach(root => {
+        console.log("Model type:", root.type, "Model name:", root.name);
+    });
+
+    function updatePlotAxis(plotType) {
+        const plot = Bokeh.documents[0].roots()[0];
+        console.log("Plot:", plot);
+
+        if (!plot) {
+            console.error("Plot model not found!");
+            return;
+        }
+
+        console.log("Y-axis:", plot.yaxis);
+        console.log("X-range:", plot.x_range);
+
+        const y_axis = plot.yaxis[0];
+        const x_range = plot.x_range;
+
+        if (plotType === 'h') {
+            y_axis.axis_label = 'h';
+            x_range.start = Math.pow(10, -10);
+            x_range.end = Math.pow(10, 20);
+        } else if (plotType === 'omega') {
+            y_axis.axis_label = 'Ω';
+            x_range.start = Math.pow(10, 3);
+            x_range.end = Math.pow(10, 20);
+        }
+
+        y_axis.change.emit();
+        x_range.change.emit();
+    }
+
+    document.querySelectorAll('input[name="plotType"]').forEach(function(radioButton) {
+        radioButton.addEventListener('change', function(event) {
+            updatePlotAxis(event.target.value);
+        });
+    });
+
+    // ... Rest of your existing code ...
+});

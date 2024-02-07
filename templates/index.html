@@ -21,6 +21,13 @@
                 <div class="col-md-12" id="subtitle">
                     <p>Edited and maintained by Francesco Muia, Andreas Ringwald, and Carlos Tamarit</p>
                 </div>
+                <div class="col-md-4">
+                    <!-- Radio buttons go here, aligned to the right -->
+                    <div class="plot-type-selector text-right">
+                        <label><input type="radio" name="plotType" value="h" checked> h</label>
+                        <label><input type="radio" name="plotType" value="omega"> Ω (Omega)</label>
+                    </div>
+                </div>
             </div>
             {{ div | safe }}
             <div id="comments-box" class="comments-box">

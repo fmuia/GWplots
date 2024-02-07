@@ -52,6 +52,7 @@ fig = figure(background_fill_color='white',
 fig.output_backend = "svg"
 fig.xgrid.level = 'image'
 fig.ygrid.level = 'image'
+fig.name = 'fig_h'
 
 # Set up the sliders
 
