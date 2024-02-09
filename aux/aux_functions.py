@@ -2,6 +2,21 @@
 import numpy as np
 from bokeh.models import RangeSlider, CustomJSTickFormatter, CustomJS, Slider, LabelSet, ColumnDataSource
 
+from aux.signal_functions import hPT
+
+#Global phase transition variables
+Tstar = 200.
+alpha = 0.1
+betaOverH = 10.
+vw = 0.4
+gstar = 106.75
+
+#Global parameters to track changes in phase transition parameteters
+Tstarchanged = 0
+alphachanged = 0
+betaOverHchanged = 0
+vwchanged = 0
+
 class Data:
     def __init__(self, x_coord, y_coord, color, linewidth, linestyle, opacity, depth, label, category=None, comment=None, delta_x=0, delta_y=0):
         self.x_coord = x_coord
@@ -22,11 +37,19 @@ class Data:
 
     def load_data(file_path, color, linewidth, linestyle, opacity, depth, label, category, comment, delta_x, delta_y):  # Update function signature to accept category
         if (category == 'Projected curve') or (category == 'Signal curve'):
-            data = np.loadtxt(file_path, dtype=float)
-            x_coord, y_coord = data[:, 0], data[:, 1]
+            if (file_path) != " ":
+                data = np.loadtxt(file_path, dtype=float)
+                x_coord, y_coord = data[:, 0], data[:, 1]
+            if label == '1st-order phase transition':
+                #For PT, compute array for default parameters, T at weak scale 200 GeV, alpha = 0.1, beta = 10, v = 0.4, gstar = 106.75
+                x_coord = 10**np.linspace(-18,21,200)
+                x_coord = np.array(x_coord)
+                y_coord = hPT(Tstar, alpha, betaOverH, vw, gstar, x_coord)
+                y_coord = np.array(y_coord)
         else:
-            data = np.loadtxt(file_path, delimiter=',', dtype=float)
-            x_coord, y_coord = data[:, 0], data[:, 1]
+            if (file_path) != " ":
+                data = np.loadtxt(file_path, delimiter=',', dtype=float)
+                x_coord, y_coord = data[:, 0], data[:, 1]
 
         return Data(x_coord, y_coord, color, linewidth, linestyle, opacity, depth, label, category, comment, delta_x, delta_y)  # Pass the category to Data initialization
 
@@ -66,7 +89,7 @@ def load_and_categorize_data(detector_data, signal_data):
 
 # Create plot sliders
 
-def create_sliders(fig):
+def create_sliders(fig, Tstar):
     range_slider_x = RangeSlider(
         title=" Adjust frequency range",
         start=-18.,
@@ -93,6 +116,7 @@ def create_sliders(fig):
                  code="other.start = 10**(this.value[0]);other.end = 10**(this.value[1]);"
         )
     )
+
     slider_width = Slider(title="Adjust plot width", start=320, end=1920, step=10, value=int(1.61803398875*600))
     callback_width = CustomJS(args=dict(plot=fig, slider=slider_width), code="plot.width = slider.value;")
     slider_width.js_on_change('value', callback_width)
@@ -101,7 +125,44 @@ def create_sliders(fig):
     callback_height = CustomJS(args=dict(plot=fig, slider=slider_height), code="plot.height = slider.value;")
     slider_height.js_on_change('value', callback_height)
 
-    return range_slider_x, range_slider_y, slider_width, slider_height  # return the sliders if needed
+
+    slider_pt_temp = Slider(
+        title=" Phase transition temperature (GeV)",
+        start=-3.,
+        end=16.,
+        step=0.05,
+        value = np.log10(Tstar),
+        format=CustomJSTickFormatter(code="return ((Math.pow(10,tick)).toExponential(2));")
+    )
+
+    slider_pt_alpha = Slider(
+        title=" alpha",
+        start=-5.,
+        end=3.,
+        step=0.05,
+        value = np.log10(alpha),
+        format=CustomJSTickFormatter(code="return ((Math.pow(10,tick)).toExponential(2));")
+    )
+
+    slider_pt_betaOverH = Slider(
+        title=" beta/H",
+        start=-5.,
+        end=3.,
+        step=0.05,
+        value = np.log10(betaOverH),
+        format=CustomJSTickFormatter(code="return ((Math.pow(10,tick)).toExponential(2));")
+    )
+
+    slider_pt_vw = Slider(
+        title=" vw",
+        start=0.05,
+        end=0.99,
+        step=0.04,
+        value = vw
+        #format=CustomJSTickFormatter(code="return ((Math.pow(10,tick)).toExponential(2));")
+    )
+
+    return range_slider_x, range_slider_y, slider_width, slider_height,  slider_pt_temp, slider_pt_alpha, slider_pt_betaOverH, slider_pt_vw   # return the sliders if needed
 
 # Create dictionary of curves
 def create_curves_dict(data_instances, category_dict, hmax):

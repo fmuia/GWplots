@@ -27,10 +27,24 @@ from bokeh.layouts import layout
 from bokeh.io import output_file, show
 from bokeh.embed import components
 from bokeh.models import VArea
+from bokeh.embed import server_document
+from bokeh.server.server import Server
+from bokeh.models import SaveTool
+from bokeh.io import output_file
 
+from bokeh.embed import server_session
+from bokeh.client import pull_session
+
+from bokeh.server.util import bind_sockets
+from tornado.ioloop import IOLoop
+from bokeh.layouts import column
 # Flask
 from flask import Flask, render_template, request, jsonify
-
+from threading import Thread
 # Import necessary libraries
 from bokeh.models import RangeSlider, CustomJSTickFormatter, CustomJS, Slider  # Ensure Slider is imported
+from bokeh.application import Application
+from bokeh.application.handlers.function import FunctionHandler
+
+
 

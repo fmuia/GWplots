@@ -23,6 +23,7 @@
                 </div>
             </div>
             {{ div | safe }}
+            {{script_bokeh_plot | safe }}
             <div id="comments-box" class="comments-box">
             <!-- Comments will be displayed here -->
             </div>
@@ -114,6 +115,11 @@
                             <label class="form-check-label" for="{{ label }}">
                                 {{ label }}
                             </label>
+                        </div>
+                        <div>
+                          {%  if (label == '1st-order phase transition') %}
+                                    {{ script_bokeh_phase_transition | safe }}
+                          {% endif %}
                         </div>
                         {% endfor %}
                     </td>
