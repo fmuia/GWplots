@@ -3,7 +3,7 @@ import numpy as np
 from bokeh.models import RangeSlider, CustomJSTickFormatter, CustomJS, Slider, LabelSet, ColumnDataSource
 
 class Data:
-    def __init__(self, x_coord, y_coord, color, linewidth, linestyle, opacity, depth, label, category=None, comment=None):
+    def __init__(self, x_coord, y_coord, color, linewidth, linestyle, opacity, depth, label, category=None, comment=None, delta_x=0, delta_y=0):
         self.x_coord = x_coord
         self.y_coord = y_coord
         self.color = color
@@ -14,11 +14,13 @@ class Data:
         self.label = label
         self.category = category
         self.comment = comment
+        self.delta_x = delta_x
+        self.delta_y = delta_y
 
         if len(x_coord) != len(y_coord):
             raise Warning("x_coord and y_coord have different dimensions")
 
-    def load_data(file_path, color, linewidth, linestyle, opacity, depth, label, category, comment):  # Update function signature to accept category
+    def load_data(file_path, color, linewidth, linestyle, opacity, depth, label, category, comment, delta_x, delta_y):  # Update function signature to accept category
         if (category == 'Projected curve') or (category == 'Signal curve'):
             data = np.loadtxt(file_path, dtype=float)
             x_coord, y_coord = data[:, 0], data[:, 1]
@@ -26,7 +28,7 @@ class Data:
             data = np.loadtxt(file_path, delimiter=',', dtype=float)
             x_coord, y_coord = data[:, 0], data[:, 1]
 
-        return Data(x_coord, y_coord, color, linewidth, linestyle, opacity, depth, label, category, comment)  # Pass the category to Data initialization
+        return Data(x_coord, y_coord, color, linewidth, linestyle, opacity, depth, label, category, comment, delta_x, delta_y)  # Pass the category to Data initialization
 
 def load_and_categorize_data(detector_data, signal_data):
     data_instances = {}
@@ -39,8 +41,8 @@ def load_and_categorize_data(detector_data, signal_data):
     }
 
     # Update the loop to handle the comment field
-    for file_path, label, category, color, linewidth, linestyle, opacity, depth, comment in detector_data:
-        data_instances[label] = Data.load_data(file_path, color, linewidth, linestyle, opacity, depth, label, category, comment)
+    for file_path, label, category, color, linewidth, linestyle, opacity, depth, comment, delta_x, delta_y in detector_data:
+        data_instances[label] = Data.load_data(file_path, color, linewidth, linestyle, opacity, depth, label, category, comment, delta_x, delta_y)
 
         if category == 'Indirect bound':
             category_dict['IndBounds'].append(label)
@@ -53,8 +55,8 @@ def load_and_categorize_data(detector_data, signal_data):
         elif category == 'Signal curve':
             category_dict['SignalCurves'].append(label)
             
-    for file_path, label, category, color, linewidth, linestyle, opacity, depth, comment in signal_data:
-        data_instances[label] = Data.load_data(file_path, color, linewidth, linestyle, opacity, depth, label, category, comment)
+    for file_path, label, category, color, linewidth, linestyle, opacity, depth, comment, delta_x, delta_y in signal_data:
+        data_instances[label] = Data.load_data(file_path, color, linewidth, linestyle, opacity, depth, label, category, comment, delta_x, delta_y)
 
         if category == 'Signal curve':
             category_dict['SignalCurves'].append(label)
@@ -101,11 +103,10 @@ def create_sliders(fig):
 
     return range_slider_x, range_slider_y, slider_width, slider_height  # return the sliders if needed
 
-# Create dictionary of curves
 def create_curves_dict(data_instances, category_dict, hmax):
     curves_dict = {}
     maxLengthProjBounds = 1
-    #First a loop, identify max lengths
+    # First, identify max lengths
     for label, data_instance in data_instances.items():
         category = None
         for cat, labels in category_dict.items():
@@ -114,18 +115,24 @@ def create_curves_dict(data_instances, category_dict, hmax):
                 break
         if (category == 'ProjBoundsCurves') or (category == 'SignalCurves'):
             maxLengthProjBounds = max(maxLengthProjBounds, len(data_instance.x_coord))
+
     for label, data_instance in data_instances.items():
+        # Extract common keys for simplicity
         color_key = f'color_{label}'
         linewidth_key = f'linewidth_{label}'
         linestyle_key = f'linestyle_{label}'
         opacity_key = f'opacity_{label}'
         depth_key = f'depth_{label}'
+        delta_x_key = f'delta_x_{label}'  # New key for delta_x
+        delta_y_key = f'delta_y_{label}'  # New key for delta_y
+        
         # Determine the category of the curve
         category = None
         for cat, labels in category_dict.items():
             if label in labels:
                 category = cat
                 break
+
         #If category is ProjBounds, want to plot polygon
         if (category == 'ProjBounds'):
             x_key = f'x_{label}'
@@ -134,7 +141,8 @@ def create_curves_dict(data_instances, category_dict, hmax):
             yaux = data_instance.y_coord
             xaux = np.append(np.append( xaux, np.flip(xaux)), xaux[0])
             yaux =  np.append(np.append(yaux, [hmax,hmax]), yaux[0])
-            curves_dict[label] = {x_key: xaux, y_key: yaux, color_key: data_instance.color, linewidth_key: data_instance.linewidth, linestyle_key: data_instance.linestyle,  opacity_key: data_instance.opacity,  depth_key: data_instance.depth}
+            curves_dict[label] = {x_key: xaux, y_key: yaux, color_key: data_instance.color, linewidth_key: data_instance.linewidth, linestyle_key: data_instance.linestyle,  opacity_key: data_instance.opacity,  depth_key: data_instance.depth, delta_x_key: data_instance.delta_x, delta_y_key: data_instance.delta_y
+}
         elif (category == 'ProjBoundsCurves') or (category == 'SignalCurves'):
             x_key = f'xCurve_{label}'
             y_key = f'yCurve_{label}'
@@ -143,18 +151,22 @@ def create_curves_dict(data_instances, category_dict, hmax):
             xlength = len(xaux)
             nextra = maxLengthProjBounds - len(xaux)
             if nextra==0:
-                curves_dict[label] = {x_key: xaux, y_key: yaux, color_key: data_instance.color, linewidth_key: data_instance.linewidth, linestyle_key: data_instance.linestyle, opacity_key: data_instance.opacity, depth_key: data_instance.depth}
+                curves_dict[label] = {x_key: xaux, y_key: yaux, color_key: data_instance.color, linewidth_key: data_instance.linewidth, linestyle_key: data_instance.linestyle, opacity_key: data_instance.opacity, depth_key: data_instance.depth, delta_x_key: data_instance.delta_x, delta_y_key: data_instance.delta_y
+}
             else:
                 xextra = np.array([ xaux[xlength-1] for _ in range(nextra) ])
                 yextra = np.array([ yaux[xlength-1] for _ in range(nextra) ])
                 xaux = np.concatenate([xaux,xextra])
                 yaux = np.concatenate([yaux,yextra])
-                curves_dict[label] = {x_key: xaux, y_key: yaux, color_key: data_instance.color, linewidth_key: data_instance.linewidth, linestyle_key: data_instance.linestyle,  opacity_key: data_instance.opacity, depth_key: data_instance.depth}
+                curves_dict[label] = {x_key: xaux, y_key: yaux, color_key: data_instance.color, linewidth_key: data_instance.linewidth, linestyle_key: data_instance.linestyle,  opacity_key: data_instance.opacity, depth_key: data_instance.depth, delta_x_key: data_instance.delta_x, delta_y_key: data_instance.delta_y
+}
         else:
             x_key = f'x_{label}'
             y_key = f'y_{label}'
             y2_key = f'y2_{label}'
-            curves_dict[label] = {x_key: data_instance.x_coord, y_key: data_instance.y_coord,  y2_key: np.array([10**-2 for _ in range(len(data_instance.y_coord))]), color_key: data_instance.color, linewidth_key: data_instance.linewidth, linestyle_key: data_instance.linestyle, opacity_key: data_instance.opacity, depth_key: data_instance.depth}
+            curves_dict[label] = {x_key: data_instance.x_coord, y_key: data_instance.y_coord,  y2_key: np.array([10**-2 for _ in range(len(data_instance.y_coord))]), color_key: data_instance.color, linewidth_key: data_instance.linewidth, linestyle_key: data_instance.linestyle, opacity_key: data_instance.opacity, depth_key: data_instance.depth, delta_x_key: data_instance.delta_x, delta_y_key: data_instance.delta_y
+}
+
     return curves_dict
 
 
@@ -182,6 +194,15 @@ def add_curves_to_plot(fig, curves_dict, category_dict, plot_source, plot_source
             if label in labels:
                 category = cat
                 break
+
+        # Generate keys for delta_x and delta_y dynamically based on the label
+        delta_x_key = f'delta_x_{label}'  # Adjusted to use the dynamic key
+        delta_y_key = f'delta_y_{label}'  # Adjusted to use the dynamic key
+
+        # Retrieve delta_x and delta_y using the dynamically generated keys
+        delta_x = data.get(delta_x_key, 0)  # Defaulting to 0 if not present
+        delta_y = data.get(delta_y_key, 0)  # Defaulting to 0 if not present
+
         #x_key = f'x_{label}'
         #y_key = f'y_{label}'
         color_key = f'color_{label}'
@@ -200,8 +221,8 @@ def add_curves_to_plot(fig, curves_dict, category_dict, plot_source, plot_source
                 y_key = f'y_{label}'
                 plotsource.add([], x_key)
                 plotsource.add([], y_key)
-                annotation_x = data[x_key][0]
-                annotation_y = data[y_key][0]
+                annotation_x = data[x_key][0] + delta_x
+                annotation_y = data[y_key][0] + delta_y
                 fig.line(x = x_key, y = y_key, source=plotsource,  color = data[color_key], line_width = data[linewidth_key], line_dash = data[linestyle_key], line_alpha = data[opacity_key], level = data[depth_key])#linewdith, linestyle, legend_label=label,
             elif (category == 'ProjBoundsCurves') or (category == 'SignalCurves') :
                 #also line plot but use different names
@@ -210,8 +231,8 @@ def add_curves_to_plot(fig, curves_dict, category_dict, plot_source, plot_source
                 y_key = f'yCurve_{label}'
                 plotsource.add([], x_key)
                 plotsource.add([], y_key)
-                annotation_x = data[x_key][0]
-                annotation_y = data[y_key][0]
+                annotation_x = data[x_key][0] + delta_x
+                annotation_y = data[y_key][0] + delta_y
                 fig.line(x = x_key, y = y_key, source=plotsource,  color = data[color_key], line_width = data[linewidth_key], line_dash = data[linestyle_key], line_alpha = data[opacity_key], level = data[depth_key])
             else:
                 #in this case current bounds area plot
@@ -222,8 +243,8 @@ def add_curves_to_plot(fig, curves_dict, category_dict, plot_source, plot_source
                 plotsource.add([], x_key)
                 plotsource.add([], y_key)
                 plotsource.add([], y2_key)
-                annotation_x = data[x_key][0]
-                annotation_y = data[y_key][0]
+                annotation_x = data[x_key][0] + delta_x
+                annotation_y = data[y_key][0] + delta_y
                 fig.varea(x = x_key, y1 = y_key, y2=y2_key, source=plotsource,  color = data[color_key], alpha = data[opacity_key], level = data[depth_key])#legend_label=label,
 
 
@@ -238,7 +259,7 @@ def add_curves_to_plot(fig, curves_dict, category_dict, plot_source, plot_source
 
         # Create and add the LabelSet for the annotation
         annotation = LabelSet(x='x', y='y', text='text',
-                              x_offset=5, y_offset=5, source=annotation_source,
+                              x_offset=0, y_offset=0, source=annotation_source,
                               text_font_size='10pt', visible=False,
                               name=f"annotation_{label}")  # Unique name
         fig.add_layout(annotation)
