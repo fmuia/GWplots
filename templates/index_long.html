@@ -23,9 +23,6 @@
                 </div>
             </div>
             {{ div | safe }}
-            <div id="comments-box" class="comments-box">
-            <!-- Comments will be displayed here -->
-            </div>
         </div>
 
         <!-- Checkboxes and Sliders Section (1/5 width) -->
@@ -47,7 +44,7 @@
                         <!-- Direct bounds checkboxes -->
                         {% for label in category_dict.DirBounds %}
                         <div class="form-check">
-                            <input class="form-check-input" type="checkbox" value="{{ label }}" id="{{ label }}" onclick="updatePlot('{{ label }}'); updateComments(this)">
+                            <input class="form-check-input" type="checkbox" value="" id="{{ label }}" onclick="updatePlot('{{ label }}')">
                             <label class="form-check-label" for="{{ label }}">
                                 {{ label }}
                             </label>
@@ -58,7 +55,7 @@
                         <!-- Indirect bounds checkboxes -->
                         {% for label in category_dict.IndBounds %}
                         <div class="form-check">
-                            <input class="form-check-input" type="checkbox" value="{{ label }}" id="{{ label }}" onclick="updatePlot('{{ label }}'); updateComments(this)">
+                            <input class="form-check-input" type="checkbox" value="" id="{{ label }}" onclick="updatePlot('{{ label }}')">
                             <label class="form-check-label" for="{{ label }}">
                                 {{ label }}
                             </label>
@@ -69,7 +66,7 @@
                         <!-- Projected bounds checkboxes -->
                         {% for label in category_dict.ProjBounds %}
                         <div class="form-check">
-                            <input class="form-check-input" type="checkbox" value="{{ label }}" id="{{ label }}" onclick="updatePlot('{{ label }}'); updateComments(this)">
+                            <input class="form-check-input" type="checkbox" value="" id="{{ label }}" onclick="updatePlot('{{ label }}')">
                             <label class="form-check-label" for="{{ label }}">
                                 {{ label }}
                             </label>
@@ -77,7 +74,7 @@
                         {% endfor %}
                         {% for label in category_dict.ProjBoundsCurves %}
                         <div class="form-check">
-                            <input class="form-check-input" type="checkbox" value="{{ label }}" id="{{ label }}" onclick="updatePlot('{{ label }}'); updateComments(this)">
+                            <input class="form-check-input" type="checkbox" value="" id="{{ label }}" onclick="updatePlot('{{ label }}')">
                             <label class="form-check-label" for="{{ label }}">
                                 {{ label }}
                             </label>
@@ -85,7 +82,7 @@
                         {% endfor %}
                         {% for label in category_dict.ProjBoundsInterf %}
                         <div class="form-check">
-                            <input class="form-check-input" type="checkbox" value="{{ label }}" id="{{ label }}" onclick="updatePlot('{{ label }}'); updateComments(this)">
+                            <input class="form-check-input" type="checkbox" value="" id="{{ label }}" onclick="updatePlot('{{ label }}')">
                             <label class="form-check-label" for="{{ label }}">
                                 {{ label }}
                             </label>
@@ -110,7 +107,7 @@
                         <!-- Direct bounds checkboxes -->
                         {% for label in category_dict.SignalCurves %}
                         <div class="form-check">
-                            <input class="form-check-input" type="checkbox" value="{{ label }}" id="{{ label }}" onclick="updatePlot('{{ label }}'); updateComments(this)">
+                            <input class="form-check-input" type="checkbox" value="" id="{{ label }}" onclick="updatePlot('{{ label }}')">
                             <label class="form-check-label" for="{{ label }}">
                                 {{ label }}
                             </label>
@@ -159,4 +156,3 @@
 {{ script | safe }}
 </body>
 </html>
-
