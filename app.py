@@ -36,6 +36,8 @@ slider_pt_temp = None
 slider_pt_alpha = None
 slider_pt_betaOverH = None
 slider_pt_vw = None
+slider_width = None
+
 category_dict = None
 curves_dict = None
 
@@ -56,15 +58,25 @@ plot_source_proj_curves = ColumnDataSource(data=dict(), name='plot_source_proj_c
 
 # Set up the figure
 
-
+#Global parameters for range, width and height
 hmin = 10.**-35.
 hmax = 10.**-10.
-xrange=(10**-18, 10**20)
+hrangechanged = 0
+fmin = 10**-18.
+fmax = 10**20.
+frangechanged = 0
+plot_width = int(900)
+plot_width_changed = 0
+plot_height = 600
+plot_height_changed = 0
+xrange = (fmin, fmax)
+yrange = (hmin, hmax)
+
 fig = figure(background_fill_color='white',
 border_fill_color='black',
 border_fill_alpha=0.0,
-height=600,
-width=int(900),
+height= plot_height,
+width= plot_width,
 x_axis_label='frequency (Hz)',
 x_axis_type='log',
 x_axis_location='below',
@@ -72,7 +84,7 @@ x_range=xrange,
 y_axis_label='h',
 y_axis_type='log',
 y_axis_location='left',
-y_range=(hmin, hmax),
+y_range=yrange,
 title='Gravitational waves plotter',
 title_location='above',
 toolbar_location='below',
@@ -83,7 +95,7 @@ fig.ygrid.level = 'image'
 
 
 def create_bokeh_plot():
-    global fig, slider_x, slider_y, slider_width,  slider_height, slider_pt_temp, slider_pt_alpha, slider_pt_betaOverH, slider_pt_vw, category_dict, data_instances, curves_dict, on_buttons, layout, layout2
+    global fig, slider_x, slider_y, slider_width,  slider_height, slider_pt_temp, slider_pt_alpha, slider_pt_betaOverH, slider_pt_vw, category_dict, data_instances, curves_dict, on_buttons, layout, layout2, layout_size
     # Import all the relevant libraries and packages
 
 ## Load detector curves
@@ -121,9 +133,12 @@ def create_bokeh_plot():
     add_curves_to_plot(fig, curves_dict, category_dict, plot_source, plot_source_proj, plot_source_proj_curves)
 
     #Main plot with range/size sliders
-    layout = column(fig, slider_x, slider_y,  slider_width, slider_height)
+    layout = column(fig)
+    #Sliders for range/size
+    layout_size = column(slider_x, slider_y,  slider_width, slider_height)
     #Sliders for phase transition parameters
     layout2 = column(slider_pt_temp, slider_pt_alpha, slider_pt_betaOverH, slider_pt_vw)
+
 
 
 
@@ -151,6 +166,8 @@ def index():
 
     #script main plot and range/size sliders
     script_bokeh_plot = server_document(url='http://127.0.0.1:5006/plot')
+    #script range/size sliders
+    script_bokeh_plot_resize = server_document(url='http://127.0.0.1:5006/resize')
     #script phase transition sliders
     script_bokeh_phase_transition = server_document(url='http://127.0.0.1:5006/phase_transition')
 
@@ -158,6 +175,7 @@ def index():
     return render_template(
         'index.html',
         script_bokeh_plot = script_bokeh_plot,
+        script_bokeh_plot_resize = script_bokeh_plot_resize,
         script_bokeh_phase_transition =  script_bokeh_phase_transition,
         #script=script,
         #div=div,
@@ -179,7 +197,7 @@ def update_plot_route():
 
 
 
-#Bokeh app for main plot with range, size sliders
+#Bokeh app for main plot, which reacts to changes from sliders in other apps
 def bokeh_plot_app(doc):
 
     def update_plot_phase_transition():
@@ -199,14 +217,71 @@ def bokeh_plot_app(doc):
             if '1st-order phase transition' in on_buttons:
                 # Update the shared data source when the slider changes
                 plot_source_proj_curves.data['yCurve_1st-order phase transition'] = y_coord
+        # Update the plot size based on the global variables of sliders
+
+
+    def update_plot_sizes():
+        global fig, fmin, fmax, frangechanged, hmin, hmax, hrangechanged, plot_width, plot_width_changed, plot_height, plot_height_changed
+        # Update the plot parameters
+        if (frangechanged == 1):
+            fig.x_range.start = fmin
+            fig.x_range.end = fmax
+            frangechanged = 0
+
+        if (hrangechanged == 1):
+            fig.y_range.start = hmin
+            fig.y_range.end = hmax
+            hrangechanged = 0
+
+        if (plot_width_changed == 1):
+            fig.width = plot_width
+            plot_width_changed = 0
+
+        if (plot_height_changed == 1):
+            fig.height = plot_height
+            plot_height_changed = 0
 
     # Schedule periodic updates (every 100 milliseconds)
     doc.add_periodic_callback(update_plot_phase_transition, 100)
 
+    # Schedule periodic updates (every 100 milliseconds)
+    doc.add_periodic_callback(update_plot_sizes, 100)
+
     # Add the layout to the Bokeh document
     doc.add_root(layout)
 
+#Bokeh app with sliders for plot
+def bokeh_plot_resize_app(doc):
+    # Define a callback function for plot size
+    def update_frange(attr, old, new):
+        global fmin, fmax, frangechanged
+        fmin = 10**slider_x.value[0]
+        fmax = 10**slider_x.value[1]
+        frangechanged = 1
+    def update_hrange(attr, old, new):
+        global hmin, hmax, hrangechanged
+        hmin = 10**slider_y.value[0]
+        hmax = 10**slider_y.value[1]
+        hrangechanged = 1
+    def update_width(attr, old, new):
+        global plot_width, plot_width_changed
+        plot_width = slider_width.value;
+        plot_width_changed = 1
+    def update_height(attr, old, new):
+        global plot_height, plot_height_changed
+        plot_height = slider_height.value;
+        plot_height_changed = 1
 
+    # Attach the Python function to the 'value' change event of the slider
+
+    slider_x.on_change('value', update_frange)
+    slider_y.on_change('value', update_hrange)
+    slider_width.on_change('value', update_width)
+    slider_height.on_change('value', update_height)
+
+    # Add the layout to the Bokeh document
+
+    doc.add_root(layout_size)
 
 #Bokeh app with sliders for phase transitions
 def bokeh_phase_transition_app(doc):
@@ -242,6 +317,7 @@ def bokeh_phase_transition_app(doc):
 
 
 plot_app = Application(FunctionHandler(bokeh_plot_app))
+plot_resize_app = Application(FunctionHandler(bokeh_plot_resize_app))
 phase_transition_app = Application(FunctionHandler(bokeh_phase_transition_app))
 
 
@@ -250,7 +326,7 @@ flask_thread = Thread(target=lambda: app.run(debug=True, port=5003, use_reloader
 flask_thread.start()
 
 # Create and start a single Bokeh server with the different apps with different urls
-server = Server({'/plot': plot_app, '/phase_transition': phase_transition_app}, io_loop=IOLoop.current(), allow_websocket_origin=["localhost:5006","127.0.0.1:5006","localhost:5003","127.0.0.1:5003"], port=5006)
+server = Server({'/plot': plot_app, '/resize': plot_resize_app, '/phase_transition': phase_transition_app}, io_loop=IOLoop.current(), allow_websocket_origin=["localhost:5006","127.0.0.1:5006","localhost:5003","127.0.0.1:5003"], port=5006)
 server.start()
 
 

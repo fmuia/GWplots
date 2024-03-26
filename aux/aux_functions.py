@@ -98,11 +98,11 @@ def create_sliders(fig, Tstar):
         value=(np.log10(float(fig.x_range.start)), np.log10(float(fig.x_range.end))),
         format=CustomJSTickFormatter(code="return ((Math.pow(10,tick)).toExponential(0))")
     )
-    range_slider_x.js_on_change('value',
-        CustomJS(args=dict(other=fig.x_range),
-                 code="other.start = 10**(this.value[0]);other.end = 10**(this.value[1]);"
-        )
-    )
+    #range_slider_x.js_on_change('value',
+    #    CustomJS(args=dict(other=fig.x_range),
+    #            code="other.start = 10**(this.value[0]);other.end = 10**(this.value[1]);"
+    #   )
+    #)
     range_slider_y = RangeSlider(
         title=" Adjust strain range",
         start=-35.,
@@ -111,19 +111,19 @@ def create_sliders(fig, Tstar):
         value=(np.log10(float(fig.y_range.start)), np.log10(float(fig.y_range.end))),
         format=CustomJSTickFormatter(code="return ((Math.pow(10.,tick)).toExponential(0))")
     )
-    range_slider_y.js_on_change('value',
-        CustomJS(args=dict(other=fig.y_range),
-                 code="other.start = 10**(this.value[0]);other.end = 10**(this.value[1]);"
-        )
-    )
+    #range_slider_y.js_on_change('value',
+    #    CustomJS(args=dict(other=fig.y_range),
+    #             code="other.start = 10**(this.value[0]);other.end = 10**(this.value[1]);"
+    #    )
+    #)
 
     slider_width = Slider(title="Adjust plot width", start=320, end=1920, step=10, value=int(1.61803398875*600))
-    callback_width = CustomJS(args=dict(plot=fig, slider=slider_width), code="plot.width = slider.value;")
-    slider_width.js_on_change('value', callback_width)
+    #callback_width = CustomJS(args=dict(plot=fig, slider=slider_width), code="plot.width = slider.value;")
+    #slider_width.js_on_change('value', callback_width)
 
     slider_height = Slider(title="Adjust plot height", start=240, end=1080, step=10, value=600)
-    callback_height = CustomJS(args=dict(plot=fig, slider=slider_height), code="plot.height = slider.value;")
-    slider_height.js_on_change('value', callback_height)
+    #callback_height = CustomJS(args=dict(plot=fig, slider=slider_height), code="plot.height = slider.value;")
+    #slider_height.js_on_change('value', callback_height)
 
 
     slider_pt_temp = Slider(

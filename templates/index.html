@@ -33,6 +33,12 @@
         <div class="col-md-4" id="controls-section">
             <table class="table table-bordered">
                 <thead>
+                 <tr>
+                    <th scope="col" colspan="3" class="text-center">Plot adjustment</th>
+                </tr>
+                <tr>
+                {{script_bokeh_plot_resize | safe }}
+                </tr>
                 <tr>
                     <th scope="col" colspan="3" class="text-center">Experimental Bounds</th>
                 </tr>
