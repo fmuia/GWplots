@@ -11,14 +11,17 @@ from aux.aux_functions import create_sliders
 from aux.aux_functions import create_curves_dict
 from aux.aux_functions import add_curves_to_plot
 from aux.aux_functions import update_plot
+from aux.aux_functions import update_plot_general
 from aux.aux_functions import Tstar
 from aux.aux_functions import alpha
 from aux.aux_functions import betaOverH
 from aux.aux_functions import vw
+from aux.aux_functions import Gmu
 from aux.aux_functions import Tstarchanged
 from aux.aux_functions import alphachanged
 from aux.aux_functions import betaOverHchanged
 from aux.aux_functions import vwchanged
+from aux.aux_functions import Gmuchanged
 from aux.aux_functions import gstar
 from aux.signal_functions import hPT
 
@@ -37,9 +40,16 @@ slider_pt_alpha = None
 slider_pt_betaOverH = None
 slider_pt_vw = None
 slider_width = None
+slider_cosmic_strings = None
+hc_cosmic_strings = None
 
 category_dict = None
 curves_dict = None
+curves_dict_Omega = None
+plot_annotations = None
+
+#Initial value of what to plot: h by default
+what_to_plot = 0
 
 
 # Define the global variable
@@ -61,7 +71,12 @@ plot_source_proj_curves = ColumnDataSource(data=dict(), name='plot_source_proj_c
 #Global parameters for range, width and height
 hmin = 10.**-35.
 hmax = 10.**-10.
+
+Omegamin = 10.**-43.
+Omegamax = 10.**25.
+
 hrangechanged = 0
+Omegarangechanged = 0
 fmin = 10**-18.
 fmax = 10**20.
 frangechanged = 0
@@ -81,11 +96,11 @@ x_axis_label='frequency (Hz)',
 x_axis_type='log',
 x_axis_location='below',
 x_range=xrange,
-y_axis_label='h',
+y_axis_label=r'$$h_c$$',
 y_axis_type='log',
 y_axis_location='left',
 y_range=yrange,
-title='Gravitational waves plotter',
+title=r"Gravitational waves plotter",
 title_location='above',
 toolbar_location='below',
 tools='save',name = 'myplot')
@@ -95,7 +110,7 @@ fig.ygrid.level = 'image'
 
 
 def create_bokeh_plot():
-    global fig, slider_x, slider_y, slider_width,  slider_height, slider_pt_temp, slider_pt_alpha, slider_pt_betaOverH, slider_pt_vw, category_dict, data_instances, curves_dict, on_buttons, layout, layout2, layout_size
+    global fig, slider_x, slider_y, slider_y_Omega, slider_width,  slider_height, slider_pt_temp, slider_pt_alpha, slider_pt_betaOverH, slider_pt_vw, slider_cosmic_strings, h_vs_Omega_buttons, category_dict, data_instances, curves_dict, curves_dict_Omega, on_buttons, layout, layout2, layout_size, layout_cosmic_strings, Omegamin, Omegamax, hc_cosmic_strings
     # Import all the relevant libraries and packages
 
 ## Load detector curves
@@ -103,7 +118,7 @@ def create_bokeh_plot():
     # Load data into Data class instances collected in the dictionary data_instances
     # Create a dictionary category_dict containing the experiment labels divided into categories (Indirect bounds, Direct bounds, Projected bounds)
 
-    data_instances, category_dict = load_and_categorize_data(detector_data, signal_data)
+    data_instances, category_dict, hc_cosmic_strings = load_and_categorize_data(detector_data, signal_data)
 
     #print('This are the data instances:')
     #
@@ -119,12 +134,12 @@ def create_bokeh_plot():
 
     # Set up the sliders
 
-    slider_x, slider_y, slider_width,  slider_height, slider_pt_temp,  slider_pt_alpha, slider_pt_betaOverH, slider_pt_vw = create_sliders(fig, Tstar)
+    slider_x, slider_y, slider_y_Omega, slider_width,  slider_height, slider_pt_temp,  slider_pt_alpha, slider_pt_betaOverH, slider_pt_vw, slider_cosmic_strings, h_vs_Omega_buttons = create_sliders(fig, Tstar, Omegamin, Omegamax)
 
 
     # Create dictionary of curves
 
-    curves_dict = create_curves_dict(data_instances, category_dict, hmax)
+    curves_dict, curves_dict_Omega = create_curves_dict(data_instances, category_dict, hmax)
     #print('This is the curves dictionary:')
     #print(curves_dict)
 
@@ -133,12 +148,13 @@ def create_bokeh_plot():
     add_curves_to_plot(fig, curves_dict, category_dict, plot_source, plot_source_proj, plot_source_proj_curves)
 
     #Main plot with range/size sliders
-    layout = column(fig)
+    layout = column(h_vs_Omega_buttons, fig)
     #Sliders for range/size
-    layout_size = column(slider_x, slider_y,  slider_width, slider_height)
-    #Sliders for phase transition parameters
+    layout_size = column(slider_x, slider_y, slider_y_Omega,  slider_width, slider_height)
+    # #Sliders for phase transition parameters
     layout2 = column(slider_pt_temp, slider_pt_alpha, slider_pt_betaOverH, slider_pt_vw)
-
+    #Slider for phase cosmic strings
+    layout_cosmic_strings = column(slider_cosmic_strings)
 
 
 
@@ -170,6 +186,8 @@ def index():
     script_bokeh_plot_resize = server_document(url='http://127.0.0.1:5006/resize')
     #script phase transition sliders
     script_bokeh_phase_transition = server_document(url='http://127.0.0.1:5006/phase_transition')
+    #script cosmic strings slider
+    script_bokeh_cosmic_strings = server_document(url='http://127.0.0.1:5006/cosmic_strings')
 
 
     return render_template(
@@ -177,6 +195,7 @@ def index():
         script_bokeh_plot = script_bokeh_plot,
         script_bokeh_plot_resize = script_bokeh_plot_resize,
         script_bokeh_phase_transition =  script_bokeh_phase_transition,
+        script_bokeh_cosmic_strings =  script_bokeh_cosmic_strings,
         #script=script,
         #div=div,
         #div_pt = div_pt,
@@ -191,7 +210,7 @@ def index():
 def update_plot_route():
     global on_buttons
     button_label = request.args.get('button_label')
-    new_data, on_buttons = update_plot(button_label, curves_dict, on_buttons)  # Call the update_plot function and update new_data
+    new_data, on_buttons = update_plot(button_label, curves_dict, curves_dict_Omega, on_buttons, what_to_plot)  # Call the update_plot function and update new_data
     #print(f'New Data: {new_data}')  # Debugging line
     return jsonify(new_data)  # Return new_data to the client
 
@@ -205,33 +224,68 @@ def bokeh_plot_app(doc):
         global Tstarchanged, alphachanged, betaOverHchanged, vwchanged
         global plot_source_proj_curves
         global curves_dict
+        global what_to_plot
         # Update the curves dict and plot based on the global variables of phase transitions
         if (Tstarchanged == 1) or (alphachanged == 1) or (betaOverHchanged == 1) or (vwchanged == 1):
             Tstarchanged = 0
             alphachanged = 0
             betaOverHchanged = 0
             vwchanged = 0
-            x_coord =curves_dict['1st-order phase transition']['xCurve_1st-order phase transition']
+            x_coord = curves_dict['1st-order p.t.']['xCurve_1st-order p.t.']
             y_coord = np.array(hPT(Tstar, alpha, betaOverH, vw, gstar, x_coord))
-            curves_dict['1st-order phase transition']['yCurve_1st-order phase transition'] = y_coord
-            if '1st-order phase transition' in on_buttons:
+            curves_dict['1st-order p.t.']['yCurve_1st-order p.t.'] = y_coord
+            y_coord = 1.3685E36*(x_coord**2)*(y_coord**2)
+            curves_dict_Omega['1st-order p.t.']['yCurve_1st-order p.t.'] = y_coord
+            if '1st-order p.t.' in on_buttons:
                 # Update the shared data source when the slider changes
-                plot_source_proj_curves.data['yCurve_1st-order phase transition'] = y_coord
+                if what_to_plot == 0:
+                    plot_source_proj_curves.data['yCurve_1st-order p.t.'] = curves_dict['1st-order p.t.']['yCurve_1st-order p.t.']
+                else:
+                    plot_source_proj_curves.data['yCurve_1st-order p.t.'] = curves_dict_Omega['1st-order p.t.']['yCurve_1st-order p.t.']
+
+
+    def update_plot_cosmic_strings():
+        global Gmu
+        global Gmuchanged
+        global plot_source_proj_curves
+        global curves_dict
+        global what_to_plot
+        # Update the curves dict and plot based on the global variables of phase transitions
+        if (Gmuchanged == 1):
+            Gmuchanged = 0
+            x_coord = curves_dict['Global string']['xCurve_Global string']
+            y_coord = np.array(hc_cosmic_strings(x_coord, Gmu))
+            curves_dict['Global string']['yCurve_Global string'] = y_coord
+            y_coord = 1.3685E36*(x_coord**2)*(y_coord**2)
+            curves_dict_Omega['Global string']['yCurve_Global string'] = y_coord
+            if 'Global string' in on_buttons:
+                # Update the shared data source when the slider changes
+                if what_to_plot == 0:
+                    plot_source_proj_curves.data['yCurve_Global string'] = curves_dict['Global string']['yCurve_Global string']
+                else:
+                    plot_source_proj_curves.data['yCurve_Global string'] = curves_dict_Omega['Global string']['yCurve_Global string']
+
+
         # Update the plot size based on the global variables of sliders
 
 
     def update_plot_sizes():
-        global fig, fmin, fmax, frangechanged, hmin, hmax, hrangechanged, plot_width, plot_width_changed, plot_height, plot_height_changed
+        global fig, fmin, fmax, frangechanged, hmin, hmax, hrangechanged, Omegarangechanged, plot_width, plot_width_changed, plot_height, plot_height_changed
         # Update the plot parameters
         if (frangechanged == 1):
             fig.x_range.start = fmin
             fig.x_range.end = fmax
             frangechanged = 0
 
-        if (hrangechanged == 1):
+        if (hrangechanged == 1) and (what_to_plot == 0):
             fig.y_range.start = hmin
             fig.y_range.end = hmax
             hrangechanged = 0
+
+        if (Omegarangechanged == 1) and (what_to_plot == 1):
+            fig.y_range.start = Omegamin
+            fig.y_range.end = Omegamax
+            Omegarangechanged = 0
 
         if (plot_width_changed == 1):
             fig.width = plot_width
@@ -241,11 +295,32 @@ def bokeh_plot_app(doc):
             fig.height = plot_height
             plot_height_changed = 0
 
+    # Define a callback function for the what_to_plot_button
+    def h_vs_Omega_button_handler(new):
+        global what_to_plot, result_dict, on_buttons, category_dict, plot_source, plot_source_proj,  plot_source_proj_curves
+        what_to_plot = new
+        print('what_to_plot = ',what_to_plot)
+        if what_to_plot == 0:
+             fig.y_range.start = hmin
+             fig.y_range.end = hmax
+             fig.yaxis.axis_label = r'$$h_c$$'
+        elif what_to_plot == 1:
+             fig.y_range.start = Omegamin
+             fig.y_range.end = Omegamax
+             fig.yaxis.axis_label = r'$$h^2 \Omega$$'
+        result_dict, on_buttons = update_plot_general(curves_dict, curves_dict_Omega, category_dict, on_buttons, what_to_plot, plot_source, plot_source_proj,  plot_source_proj_curves)  # Call the update_plot function and update new_data
+
+    h_vs_Omega_buttons.on_change('active', lambda attr, old, new: h_vs_Omega_button_handler(new))
+
+
     # Schedule periodic updates (every 100 milliseconds)
     doc.add_periodic_callback(update_plot_phase_transition, 100)
 
     # Schedule periodic updates (every 100 milliseconds)
     doc.add_periodic_callback(update_plot_sizes, 100)
+
+    # Schedule periodic updates (every 100 milliseconds)
+    doc.add_periodic_callback(update_plot_cosmic_strings, 100)
 
     # Add the layout to the Bokeh document
     doc.add_root(layout)
@@ -263,6 +338,12 @@ def bokeh_plot_resize_app(doc):
         hmin = 10**slider_y.value[0]
         hmax = 10**slider_y.value[1]
         hrangechanged = 1
+    def update_Omegarange(attr, old, new):
+        global Omegamin, Omegamax, Omegarangechanged
+        Omegamin = 10**slider_y_Omega.value[0]
+        Omegamax = 10**slider_y_Omega.value[1]
+        Omegarangechanged = 1
+        print(f'Omegamin = {Omegamin} Omegamax = {Omegamax} Omegarangechanged = {Omegarangechanged}')
     def update_width(attr, old, new):
         global plot_width, plot_width_changed
         plot_width = slider_width.value;
@@ -276,6 +357,7 @@ def bokeh_plot_resize_app(doc):
 
     slider_x.on_change('value', update_frange)
     slider_y.on_change('value', update_hrange)
+    slider_y_Omega.on_change('value', update_Omegarange)
     slider_width.on_change('value', update_width)
     slider_height.on_change('value', update_height)
 
@@ -315,10 +397,24 @@ def bokeh_phase_transition_app(doc):
 
 
 
+#Bokeh app with sliders for cosmic strings
+def bokeh_cosmic_strings_app(doc):
+    # Define a callback function for the phase transition sliders
+    def update_Gmu(attr, old, new):
+        global Gmu, Gmuchanged
+        Gmu = 10**slider_cosmic_strings.value
+        Gmuchanged = 1
+
+    # Attach the Python function to the 'value' change event of the slider
+    slider_cosmic_strings.on_change('value', update_Gmu)
+    # Add the layout to the Bokeh document
+    doc.add_root(layout_cosmic_strings)
+
 
 plot_app = Application(FunctionHandler(bokeh_plot_app))
 plot_resize_app = Application(FunctionHandler(bokeh_plot_resize_app))
 phase_transition_app = Application(FunctionHandler(bokeh_phase_transition_app))
+cosmic_strings_app = Application(FunctionHandler(bokeh_cosmic_strings_app))
 
 
 # Start Flask app in a separate thread
@@ -326,7 +422,7 @@ flask_thread = Thread(target=lambda: app.run(debug=True, port=5003, use_reloader
 flask_thread.start()
 
 # Create and start a single Bokeh server with the different apps with different urls
-server = Server({'/plot': plot_app, '/resize': plot_resize_app, '/phase_transition': phase_transition_app}, io_loop=IOLoop.current(), allow_websocket_origin=["localhost:5006","127.0.0.1:5006","localhost:5003","127.0.0.1:5003"], port=5006)
+server = Server({'/plot': plot_app, '/resize': plot_resize_app, '/phase_transition': phase_transition_app, '/cosmic_strings': cosmic_strings_app}, io_loop=IOLoop.current(), allow_websocket_origin=["localhost:5006","127.0.0.1:5006","localhost:5003","127.0.0.1:5003"], port=5006)
 server.start()
 
 

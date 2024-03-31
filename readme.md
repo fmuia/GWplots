@@ -44,6 +44,10 @@ GWplots/                            # Project directory
 - Annotations on the plot that provide additional information.
 - Customizable plot ranges and dimensions through interactive sliders.
 
+## Still to be checked
+
+- Make sure that we use a consistent definition of characteristic strain h for the data
+
 ### Planned Features
 
 1. **Customization of Annotation Positions and Styles**: Enhance the flexibility in positioning and styling annotations on the plot to cater to various presentation needs.
@@ -57,6 +61,8 @@ GWplots/                            # Project directory
 5. **Total ΔN<sub>eff</sub> Calculation**: Provide a feature to calculate the total effective number of relativistic species (ΔN<sub>eff</sub>), based on the plotted signals.
 
 6. **Parametrization of Detector Curves**: Allow users to parametrize and modify detector sensitivity curves, enhancing the tool's utility for theoretical explorations and scenario testing.
+
+
 
 ## Contributing
 

@@ -9,3 +9,5 @@ GWplots/                      # project directory
     templates/
         index.html
     app.py
+
+Still to do: Ensure consistency in definition of h vs Omega
