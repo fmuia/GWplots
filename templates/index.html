@@ -5,21 +5,27 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>Gravitational Waves Plotter</title>
     <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
     {{ bokeh_css | safe }}
+    <!-- Avoid caching -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
+    <meta http-equiv="Pragma" content="no-cache"/>
+    <meta http-equiv="Expires" content="0"/>
 </head>
 <body>
 <div class="container-fluid h-100">
     <div class="row h-100">
         <!-- Plot Section (4/5 width) -->
         <div class="col-md-8" id="plot-section">
-            <div id="title-section">
-                <div class="col-md-12" id="title">
+            <div id="title-section" class="d-flex justify-content-between">
+                <div>
                     <h1>Gravitational Waves Plotter</h1>
+                    <p id="subtitle" class="text-muted">Edited and maintained by Francesco Muia, Andreas Ringwald, and Carlos Tamarit</p>
                 </div>
-                <div class="col-md-12" id="subtitle">
-                    <p>Edited and maintained by Francesco Muia, Andreas Ringwald, and Carlos Tamarit</p>
+                <div class="nav flex-column align-items-end ml-auto">
+                    <a class="nav-link" href="{{ url_for('about') }}" target="_blank">About</a>
+                    <a class="nav-link" href="https://github.com/fmuia/GWplots" target="_blank">GitHub</a>
                 </div>
             </div>
             {{ div | safe }}
@@ -34,20 +40,32 @@
             <table class="table table-bordered">
                 <thead>
                  <tr>
-                    <th scope="col" colspan="3" class="text-center">Plot adjustment</th>
+                    <th scope="col" colspan="3" class="text-center">Selection of bounds and signals</th>
+                </tr>
+                </thead>
+                <tr>
+                    <th scope="col" colspan="3" class="text-center">Theoretical Bounds</th>
                 </tr>
                 <tr>
-                {{script_bokeh_plot_resize | safe }}
+                    <td>
+                        <!-- Theoretical bounds checkboxes -->
+                        {% for label in category_dict.TheoreticalBounds %}
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" value="{{ label }}" id="{{ label }}" onclick="updatePlot('{{ label }}'); updateComments(this)">
+                                    <label class="form-check-label" for="{{ label }}">
+                                        {{ label }}
+                                    </label>
+                                </div>
+                        {% endfor %}
                 </tr>
                 <tr>
                     <th scope="col" colspan="3" class="text-center">Experimental Bounds</th>
                 </tr>
-                <tr>
+                  <tr>
                     <th scope="col">Direct Bounds</th>
                     <th scope="col">Indirect Bounds</th>
                     <th scope="col">Projected Bounds</th>
                 </tr>
-                </thead>
                 <tbody>
                 <tr>
                     <td>
@@ -114,7 +132,7 @@
                 <tbody>
                 <tr>
                     <td>
-                        <!-- Direct bounds checkboxes -->
+                        <!-- Signal curves checkboxes -->
                         {% for label in category_dict.SignalCurves %}
                             {% if ('Gmu' not in label) %}
                                 <div class="form-check">
@@ -123,7 +141,7 @@
                                         {{ label }}
                                     </label>
                                 </div>
-                                <div>
+                                <!--<div>
                                 {%  if (label == 'Global string') %}
                                             {{ script_bokeh_cosmic_strings | safe }}
                                 {% endif %}
@@ -133,7 +151,17 @@
                                             {{ script_bokeh_phase_transition | safe }}
                                 {% endif %}
                                 </div>
+                                -->
                             {% endif %}
+                        {% endfor %}
+                         <!-- Signal lines checkboxes -->
+                        {% for label in category_dict.SignalLines %}
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="{{ label }}" id="{{ label }}" onclick="updatePlot('{{ label }}'); updateComments(this)">
+                                <label class="form-check-label" for="{{ label }}">
+                                    {{ label }}
+                                </label>
+                            </div>
                         {% endfor %}
                     </td>
                 </tr>

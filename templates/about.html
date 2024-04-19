@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>About - Gravitational Waves Plotter</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <!-- Avoid caching -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
+    <meta http-equiv="Pragma" content="no-cache"/>
+    <meta http-equiv="Expires" content="0"/>
+</head>
+<body>
+    <div class="container mt-5 mb-5">
+        <h1 class="mb-4">GWplots: Gravitational Waves Plotter</h1>
+        <p class="mb-4">
+            Created, updated and maintained by Francesco Muia, Andreas Ringwald and Carlos Tamarit.
+        </p>
+        <p class="mb-4">
+            GWplots is an interactive web application designed for visualizing and analyzing gravitational wave data. It offers a user-friendly interface for plotting various gravitational wave signals and detector sensitivity curves, allowing researchers and enthusiasts to explore and interpret gravitational wave data effectively.
+        </p>
+        
+        <h2 class="mb-3">Project Structure</h2>
+        <p>The application is organized as follows:</p>
+        <!-- Project structure image will go here -->
+        
+        <h2 class="mb-3">Features</h2>
+        <h3 class="mb-2">Current Features</h3>
+        <ul class="mb-4">
+            <li>Interactive plotting of gravitational wave signals.</li>
+            <li>Toggle visibility of different gravitational wave detector sensitivity curves.</li>
+            <li>Annotations on the plot that provide additional information.</li>
+            <li>Customizable plot ranges and dimensions through interactive sliders.</li>
+        </ul>
+        <h3 class="mb-2">Still to be checked</h3>
+        <p>Make sure that we use a consistent definition of characteristic strain h for the data.</p>
+
+        <h3 class="mb-2">Planned Features</h3>
+        <ol class="mb-4">
+            <li>Customization of Annotation Positions and Styles.</li>
+            <li>Multiple Tunable Curves for the Same Signal.</li>
+            <li>Custom Curve Addition.</li>
+            <li>Implementation of Warnings.</li>
+            <li>Total ΔNeff Calculation.</li>
+            <li>Parametrization of Detector Curves.</li>
+        </ol>
+        
+        <h3 class="mb-2">Contributing</h3>
+        <p>
+            Contributions to GWplots are welcome, whether they be in the form of feature requests, bug reports, or pull requests. For major changes, please open an issue first to discuss what you would like to change.
+        </p>
+        
+        <h2 class="mb-3">License</h2>
+        <p>
+            This is a public project, open to everyone, and aimed at serving the scientific community by providing a standard yet fully customizable gravitational waves plotter.
+        </p>
+        <p>
+            Users are free to use, modify, and distribute this software. If you utilize this project in your research or in any other capacity, please acknowledge the authors by citing the relevant publications.
+        </p>
+        
+        <a href="{{ url_for('index') }}" class="btn btn-primary mt-4" onclick="window.location.reload(true);">Back to Home</a>
+
+    </div>
+</body>
+</html>
