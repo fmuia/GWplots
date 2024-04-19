@@ -11,7 +11,6 @@ body, html {
 #plot-section, #controls-section {
     height: 100%;
     overflow-y: auto;  /* Allow vertical scrolling */
-    padding: 10px;
 }
 
 #controls-section {
@@ -19,23 +18,48 @@ body, html {
     border-left: 1px solid #ddd; /* Add a border between the sections */
 }
 
-#title-section {
-    margin-bottom: 20px;  /* Add some space below the title section */
+/* Adjust the top and left margins of the title and subtitle */
+#title-section h1, #title-section #subtitle {
+    margin-top: 20px;
+    margin-left: 0;
 }
 
-#title {
-    margin-left: 1.5cm;
+/* Adjust the top margin of the nav-links to align with the title and subtitle */
+.nav-link {
+    margin-top: 0;
+    margin-right: 15px; /* Space between the nav links */
 }
 
+/* Optional: If you want to fine-tune the vertical alignment */
 #subtitle {
-    margin-left: 1.5cm;
-    font-size: smaller;
+    position: relative;
+    left: 30px;
+    top: -15px; /* Adjust this value as needed to align with the title */
 }
 
 .comments-box {
     margin-top: 20px;
     border: 1px solid #ccc;
-    padding: 10px;
+    padding: 40px;
     height: 100px; /* Or any suitable height */
     overflow-y: auto; /* For scrollable content */
+}
+
+/* Media Queries for Responsive Adjustments */
+@media (min-width: 768px) {
+    #title, #subtitle {
+        margin-left: 3cm;  /* Larger margin on wider screens */
+    }
+    #title-section {
+        padding-left: 30px;
+    }
+}
+
+@media (max-width: 767px) {
+    #title, #subtitle {
+        margin-left: 2cm;  /* Smaller margin on narrow screens */
+    }
+    #title-section {
+        padding-left: 20px;
+    }
 }
