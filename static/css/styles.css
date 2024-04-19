@@ -15,21 +15,32 @@ body, html {
 }
 
 #controls-section {
+    left-padding: 10px;
     background-color: #f8f9fa;  /* Light grey background for better distinction */
     border-left: 1px solid #ddd; /* Add a border between the sections */
 }
 
 #title-section {
     margin-bottom: 20px;  /* Add some space below the title section */
+    padding-top: 20px;    /* Adds space above the title text */
+    padding-left: 30px;   /* Additional padding to left to enhance centering */
 }
 
 #title {
-    margin-left: 1.5cm;
+    margin-left: 0.5cm; /* Keeps the margin left for the title */
+    /* Any other styles you have for #title */
 }
 
+
 #subtitle {
-    margin-left: 1.5cm;
-    font-size: smaller;
+    margin-top: 0.5em !important; /* Adds a small space below the title */
+    padding-left: -15px !important; /* Aligns subtitle with title text */
+    font-size: smaller !important; /* Ensures font size is smaller */
+}
+
+.nav-link {
+    margin-right: 15px; /* Adjust the value as needed */
+    margin-bottom: 5px; /* Adjust the space between navigation links */
 }
 
 .comments-box {
@@ -38,4 +49,25 @@ body, html {
     padding: 10px;
     height: 100px; /* Or any suitable height */
     overflow-y: auto; /* For scrollable content */
+}
+
+/* Media Queries for Responsive Adjustments */
+@media (min-width: 768px) {
+    #title, #subtitle {
+        margin-left: 3cm;  /* Larger margin on wider screens */
+    }
+    #title-section {
+        padding-top: 20px;
+        padding-left: 30px;
+    }
+}
+
+@media (max-width: 767px) {
+    #title, #subtitle {
+        margin-left: 2cm;  /* Smaller margin on narrow screens */
+    }
+    #title-section {
+        padding-top: 10px;
+        padding-left: 20px;
+    }
 }

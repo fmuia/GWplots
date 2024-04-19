@@ -5,9 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>Gravitational Waves Plotter</title>
     <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
     {{ bokeh_css | safe }}
+    <!-- Avoid caching -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
+    <meta http-equiv="Pragma" content="no-cache"/>
+    <meta http-equiv="Expires" content="0"/>
 </head>
 <body>
 <div class="container-fluid h-100">
@@ -21,6 +25,14 @@
                 <div class="col-md-12" id="subtitle">
                     <p>Edited and maintained by Francesco Muia, Andreas Ringwald, and Carlos Tamarit</p>
                 </div>
+                <!-- Navigation Area -->
+                <div class="col-md-2">
+                    <div class="nav flex-column align-items-end">
+                        <a class="nav-link" href="{{ url_for('about') }}" target="_blank">About</a>
+                        <a class="nav-link" href="https://github.com/fmuia/GWplots" target="_blank">GitHub</a>
+                    </div>
+                </div>
+
             </div>
             {{ div | safe }}
             {{script_bokeh_plot | safe }}

@@ -425,7 +425,9 @@ flask_thread.start()
 server = Server({'/plot': plot_app, '/resize': plot_resize_app, '/phase_transition': phase_transition_app, '/cosmic_strings': cosmic_strings_app}, io_loop=IOLoop.current(), allow_websocket_origin=["localhost:5006","127.0.0.1:5006","localhost:5003","127.0.0.1:5003"], port=5006)
 server.start()
 
-
+@app.route('/about')
+def about():
+    return render_template('about.html')
 
 
 if __name__ == '__main__':
