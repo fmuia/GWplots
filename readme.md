@@ -4,6 +4,30 @@
 
 GWplots is an interactive web application designed for visualizing and analyzing gravitational wave data. It offers a user-friendly interface for plotting various gravitational wave signals and detector sensitivity curves, allowing researchers and enthusiasts to explore and interpret gravitational wave data effectively.
 
+# Dependencies
+
+Requires python3 with the following additional dependencies:
+
+numpy
+scipy
+bokeh
+flask
+matplotlib
+
+
+# How to run
+
+Execute the following command in the main folder:
+
+python3 app.py 
+
+The plot can be accessed in a browser by entering the following local address:
+
+http://127.0.0.1:5003
+
+
+
+
 ## Project Structure
 
 The application is organized as follows:
