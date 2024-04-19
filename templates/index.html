@@ -18,21 +18,15 @@
     <div class="row h-100">
         <!-- Plot Section (4/5 width) -->
         <div class="col-md-8" id="plot-section">
-            <div id="title-section">
-                <div class="col-md-12" id="title">
+            <div id="title-section" class="d-flex justify-content-between">
+                <div>
                     <h1>Gravitational Waves Plotter</h1>
+                    <p id="subtitle" class="text-muted">Edited and maintained by Francesco Muia, Andreas Ringwald, and Carlos Tamarit</p>
                 </div>
-                <div class="col-md-12" id="subtitle">
-                    <p>Edited and maintained by Francesco Muia, Andreas Ringwald, and Carlos Tamarit</p>
+                <div class="nav flex-column align-items-end ml-auto">
+                    <a class="nav-link" href="{{ url_for('about') }}" target="_blank">About</a>
+                    <a class="nav-link" href="https://github.com/fmuia/GWplots" target="_blank">GitHub</a>
                 </div>
-                <!-- Navigation Area -->
-                <div class="col-md-2">
-                    <div class="nav flex-column align-items-end">
-                        <a class="nav-link" href="{{ url_for('about') }}" target="_blank">About</a>
-                        <a class="nav-link" href="https://github.com/fmuia/GWplots" target="_blank">GitHub</a>
-                    </div>
-                </div>
-
             </div>
             {{ div | safe }}
             {{script_bokeh_plot | safe }}

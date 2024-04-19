@@ -11,42 +11,36 @@ body, html {
 #plot-section, #controls-section {
     height: 100%;
     overflow-y: auto;  /* Allow vertical scrolling */
-    padding: 10px;
 }
 
 #controls-section {
-    left-padding: 10px;
     background-color: #f8f9fa;  /* Light grey background for better distinction */
     border-left: 1px solid #ddd; /* Add a border between the sections */
 }
 
-#title-section {
-    margin-bottom: 20px;  /* Add some space below the title section */
-    padding-top: 20px;    /* Adds space above the title text */
-    padding-left: 30px;   /* Additional padding to left to enhance centering */
+/* Adjust the top and left margins of the title and subtitle */
+#title-section h1, #title-section #subtitle {
+    margin-top: 20px;
+    margin-left: 0;
 }
 
-#title {
-    margin-left: 0.5cm; /* Keeps the margin left for the title */
-    /* Any other styles you have for #title */
-}
-
-
-#subtitle {
-    margin-top: 0.5em !important; /* Adds a small space below the title */
-    padding-left: -15px !important; /* Aligns subtitle with title text */
-    font-size: smaller !important; /* Ensures font size is smaller */
-}
-
+/* Adjust the top margin of the nav-links to align with the title and subtitle */
 .nav-link {
-    margin-right: 15px; /* Adjust the value as needed */
-    margin-bottom: 5px; /* Adjust the space between navigation links */
+    margin-top: 0;
+    margin-right: 15px; /* Space between the nav links */
+}
+
+/* Optional: If you want to fine-tune the vertical alignment */
+#subtitle {
+    position: relative;
+    left: 30px;
+    top: -15px; /* Adjust this value as needed to align with the title */
 }
 
 .comments-box {
     margin-top: 20px;
     border: 1px solid #ccc;
-    padding: 10px;
+    padding: 40px;
     height: 100px; /* Or any suitable height */
     overflow-y: auto; /* For scrollable content */
 }
@@ -57,7 +51,6 @@ body, html {
         margin-left: 3cm;  /* Larger margin on wider screens */
     }
     #title-section {
-        padding-top: 20px;
         padding-left: 30px;
     }
 }
@@ -67,7 +60,6 @@ body, html {
         margin-left: 2cm;  /* Smaller margin on narrow screens */
     }
     #title-section {
-        padding-top: 10px;
         padding-left: 20px;
     }
 }
