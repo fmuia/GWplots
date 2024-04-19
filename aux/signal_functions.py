@@ -16,8 +16,8 @@ def hPT(Tstar, alpha, betaoverH, vw, gstar, f):
     cs = 1/np.sqrt(3.)
     kappa = cs**(11./5)*kappaA*kappaB/((cs**(11./5)-vw**(11./5))*kappaB+vw*cs**(6/5)*kappaA)
     K = kappa*alpha/(1+alpha)
-    h=.674 #Hubble/100
-    return((1.26e-18/f)*np.sqrt(h**2*0.687*Fgw0*K**(3/2)*(HstarRstar/np.sqrt(cs))**2*TildeOmegagw*C))
+    #Use convention of hc from UHFWG review, hc =sqrt(3) H0/(2Pi f) Sqrt{Omega}
+    return((6.04453E-19/f)*np.sqrt(0.687*Fgw0*K**(3/2)*(HstarRstar/np.sqrt(cs))**2*TildeOmegagw*C))
 
 
 
