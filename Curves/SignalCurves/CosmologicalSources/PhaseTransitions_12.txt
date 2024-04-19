@@ -1,0 +1,4 @@
+#2011.12414 (cosmic strings, 2 power laws with elbow defined by three points)
+6.23017e-18, 8.85686e-6
+6.23003e8, 8.85727e-32
+6.23017e12,8.85727e-40
