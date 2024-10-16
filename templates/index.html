@@ -134,7 +134,7 @@
                     <td>
                         <!-- Signal curves checkboxes -->
                         {% for label in category_dict.SignalCurves %}
-                            {% if ('Gmu' not in label) %}
+                            {% if ('Gmu' not in label) and ('MPBH' not in label)%}
                                 <div class="form-check">
                                     <input class="form-check-input" type="checkbox" value="{{ label }}" id="{{ label }}" onclick="updatePlot('{{ label }}'); updateComments(this)">
                                     <label class="form-check-label" for="{{ label }}">

@@ -1,5 +1,6 @@
 # aux_functions.py
 import numpy as np
+import pandas as pd
 from bokeh.models import RangeSlider,  CustomJSTickFormatter, Slider, LabelSet, ColumnDataSource, Line
 from bokeh.models.widgets import RadioButtonGroup
 from scipy.interpolate import RegularGridInterpolator as RGI
@@ -13,6 +14,7 @@ betaOverH0 = 10.
 vw0 = 0.4
 Gmu0 = 1.E-11
 gstar0 = 106.75
+MPBH0  = 1.E-6
 
 #Define interpolating function from cosmic string data
 def interpolate_cosmic_strings(signal_data):
@@ -40,8 +42,44 @@ def interpolate_cosmic_strings(signal_data):
 
     return hc_cosmic_strings
 
+
 #Define interpolating function
 hc_cosmic_strings = interpolate_cosmic_strings(signal_data)
+
+
+
+
+#Define interpolating function from PBH data
+def interpolate_PBH(signal_data):
+
+    #We will collect data from PBHs in order to define an interpolating function
+    data_PBH = []
+    mass_PBH = np.array([1.E-6, 1.E-7, 1.E-8, 1.E-9, 1.E-10, 1.E-11, 1.E-12, 1.E-13, 1.E-14, 1.E-15, 1.E-16])
+
+    for file_path, label, category, color, linewidth, linestyle, opacity, depth, comment, delta_x, delta_y, label_angle, label_color, label_size in signal_data:
+        if label == 'PBH_MPBH=1E-6' and file_path !=' ':
+            data = np.loadtxt(file_path, dtype=float)
+            x_coord_PBH =  data[:, 0]
+            data_PBH.append(np.array(data[:,1]))
+        elif 'PBH' in label  and file_path !=' ':
+            data = np.loadtxt(file_path, dtype=float)
+            data_PBH.append(np.array(data[:,1]))
+
+    data_PBH = np.array(data_PBH)
+
+
+
+    # Create interpolation function
+    hc_PBH =  RGI((x_coord_PBH, mass_PBH), data_PBH.T, method='linear', bounds_error=False)
+
+
+    return hc_PBH
+
+
+#Define interpolating function
+hc_PBH = interpolate_PBH(signal_data)
+
+
 
 class Data:
     def __init__(self, x_coord, y_coord, color, linewidth, linestyle, opacity, depth, label, category=None, comment=None, delta_x=0, delta_y=0, label_angle = 0, label_color = 'black', label_size ='9pt'):
@@ -74,11 +112,13 @@ class Data:
                     y_coord = np.array(y_coord)
                     #For CGMB we compute label position and angle near peak
                     position_max = np.argmax(y_coord)
-                    delta_x = 12.*x_coord[position_max]
+                    delta_x = 5.*x_coord[position_max]
                     position_label = np.abs(x_coord - delta_x).argmin()
                     delta_x = x_coord[position_label]
                     delta_y = y_coord[position_label]
                     label_angle = 0
+
+            #FilePath is now empty:
             if label == '1st-order p.t.':
                 #For PT, compute array for default parameters, T at weak scale 200 GeV, alpha = 0.1, beta = 10, v = 0.4, gstar = 106.75
                 x_coord = 10**np.linspace(-18,21,200)
@@ -98,7 +138,7 @@ class Data:
                 label_angle = np.arctan(derivative[position_label])
 
             if label == 'Global strings':
-             #For global strings, compute array for default parameter Gmu=1E-11
+                #For global strings, compute array for default parameter Gmu=1E-11
                 x_coord = 10**np.linspace(-18,21,200)
                 x_coord = np.array(x_coord)
                 y_coord = hc_cosmic_strings((x_coord, Gmu0))
@@ -111,6 +151,25 @@ class Data:
                 derivative = derivative[~nan_mask]
                 position_min = np.argmin(abs(derivative))
                 delta_x = 1/10*x_coord[position_min]
+                position_label = np.abs(x_coord - delta_x).argmin()
+                delta_x = x_coord[position_label]
+                delta_y = y_coord[position_label]
+                label_angle = np.arctan(derivative[position_label])
+
+            if label == 'PBHs':
+                #For PBHs, compute array for default parameter M=1E-6
+                x_coord = 10**np.linspace(-18,21,200)
+                x_coord = np.array(x_coord)
+                y_coord = hc_PBH((x_coord, MPBH0))
+                y_coord = np.array(y_coord)
+                #For PBH we compute label position and angle near max deriv.
+                derivative = np.gradient(np.log10(y_coord), np.log10(x_coord))
+                # Create a boolean mask for NaN elements
+                nan_mask = np.isnan(derivative)
+                # Filter out NaN elements using the mask
+                derivative = derivative[~nan_mask]
+                position_min = np.argmax(abs(derivative))
+                delta_x = 1/100000*x_coord[position_min]
                 position_label = np.abs(x_coord - delta_x).argmin()
                 delta_x = x_coord[position_label]
                 delta_y = y_coord[position_label]
@@ -167,12 +226,12 @@ def load_and_categorize_data(detector_data, signal_data, theoretical_bounds_data
         if category == 'Theoretical Bound':
             category_dict['TheoreticalBounds'].append(label)
 
-    return data_instances, category_dict, hc_cosmic_strings
+    return data_instances, category_dict, hc_cosmic_strings, hc_PBH
 
 
 # Create plot sliders, and button for h vs Omega
 
-def create_sliders(fig, Omegamin, Omegamax):
+def create_sliders(fig, Omegamin, Omegamax, Shmin, Shmax):
     range_slider_x = RangeSlider(
         title=" Adjust frequency range",
         start=-18.,
@@ -195,11 +254,21 @@ def create_sliders(fig, Omegamin, Omegamax):
 
 
     range_slider_y_Omega = RangeSlider(
-        title=r" Adjust $$h^2\Omega$$ range",
+        title=r" Adjust $$\Omega$$ range",
         start=-40.,
         end=40.,
         step=1,
         value=(np.log10(float(Omegamin)), np.log10(float(Omegamax))),
+        format=CustomJSTickFormatter(code="return ((Math.pow(10.,tick)).toExponential(0))")
+    )
+
+
+    range_slider_y_Sh = RangeSlider(
+        title=r" Adjust $$S_h$$ range",
+        start=-96.,
+        end=-2.,
+        step=1,
+        value=(np.log10(float(Shmin)), np.log10(float(Shmax))),
         format=CustomJSTickFormatter(code="return ((Math.pow(10.,tick)).toExponential(0))")
     )
 
@@ -267,19 +336,30 @@ def create_sliders(fig, Omegamin, Omegamax):
         format=CustomJSTickFormatter(code="return ((Math.pow(10,tick)).toExponential(2));")
     )
 
+    # Slider for PBHs
+    slider_PBH = Slider(
+        title=r" PBH mass  $$M_{PBH}/M_{\odot}$$",
+        start=-16.,
+        end=-6.,
+        step=1,
+        value = np.log10(MPBH0),
+        format=CustomJSTickFormatter(code="return ((Math.pow(10,tick)).toExponential(2));")
+    )
+
     # Code for h vs Omega button
 
 
     # Create a RadioButtonGroup widget
-    h_vs_Omega_buttons = RadioButtonGroup(labels=[r"Plot characteristic strain h꜀", r"Plot energy fraction h² Ω"], active=0)
+    h_vs_Omega_buttons = RadioButtonGroup(labels=[r"Plot characteristic strain h꜀", r"Plot energy fraction Ω",  r"Plot power spectral density Sh"], active=0)
 
 
-    return range_slider_x, range_slider_y, range_slider_y_Omega, slider_width, slider_height,  slider_pt_temp, slider_pt_alpha, slider_pt_betaOverH, slider_pt_vw, slider_cosmic_strings, slider_CGMB, h_vs_Omega_buttons   # return the sliders if needed
+    return range_slider_x, range_slider_y, range_slider_y_Omega, range_slider_y_Sh, slider_width, slider_height,  slider_pt_temp, slider_pt_alpha, slider_pt_betaOverH, slider_pt_vw, slider_cosmic_strings, slider_CGMB, slider_PBH, h_vs_Omega_buttons   # return the sliders if needed
 
 # Create dictionary of curves and annotations
 def create_curves_dict(data_instances, category_dict, hmax):
     curves_dict = {}
     curves_dict_Omega = {}
+    curves_dict_Sh = {}
     maxLengthCurves = 1
     maxLengthLines = 1
     #First identify max lengths
@@ -328,11 +408,20 @@ def create_curves_dict(data_instances, category_dict, hmax):
             else:
                 annotation_x_aux =  xaux[0]
                 annotation_y_aux =  yaux[0]
+            yaux_h = yaux
+            annotation_y_aux_h = annotation_y_aux
             curves_dict[label] = {x_key: xaux, y_key: yaux, color_key: data_instance.color, linewidth_key: data_instance.linewidth, linestyle_key: data_instance.linestyle,  opacity_key: data_instance.opacity,  depth_key: data_instance.depth, annotation_x_key:  annotation_x_aux, annotation_y_key: annotation_y_aux, label_angle_key : data_instance.label_angle, label_color_key : data_instance.label_color, label_size_key : data_instance.label_size}
+            #
             #Data for Omega
-            yaux = 2.737E36*(xaux**2)*(yaux**2)
-            annotation_y_aux = 2.737E36*(annotation_x_aux**2)*(annotation_y_aux**2)
+            yaux = 2.737E36*(xaux**2)*(yaux_h**2)
+            annotation_y_aux = 2.737E36*(annotation_x_aux**2)*(annotation_y_aux_h**2)
             curves_dict_Omega[label] = {x_key: xaux, y_key: yaux, color_key: data_instance.color, linewidth_key: data_instance.linewidth, linestyle_key: data_instance.linestyle,  opacity_key: data_instance.opacity,  depth_key: data_instance.depth, annotation_x_key:  annotation_x_aux, annotation_y_key: annotation_y_aux, label_angle_key : data_instance.label_angle,  label_color_key : data_instance.label_color, label_size_key : data_instance.label_size}
+            #
+            #Data for Sh
+            yaux = yaux_h**2/xaux
+            annotation_y_aux = (annotation_y_aux_h**2)/(annotation_x_aux)
+            curves_dict_Sh[label] = {x_key: xaux, y_key: yaux, color_key: data_instance.color, linewidth_key: data_instance.linewidth, linestyle_key: data_instance.linestyle,  opacity_key: data_instance.opacity,  depth_key: data_instance.depth, annotation_x_key:  annotation_x_aux, annotation_y_key: annotation_y_aux, label_angle_key : data_instance.label_angle,  label_color_key : data_instance.label_color, label_size_key : data_instance.label_size}
+
         #If ProjBoundsCurves or SignalCurves, we plot line segments
         elif (category == 'ProjBoundsCurves') or (category == 'SignalCurves'):
             x_key = f'xCurve_{label}'
@@ -349,21 +438,33 @@ def create_curves_dict(data_instances, category_dict, hmax):
             xlength = len(xaux)
             nextra = maxLengthCurves - len(xaux)
             if nextra==0:
+                yaux_h = yaux
+                annotation_y_aux_h = annotation_y_aux
                 curves_dict[label] = {x_key: xaux, y_key: yaux, color_key: data_instance.color, linewidth_key: data_instance.linewidth, linestyle_key: data_instance.linestyle, opacity_key: data_instance.opacity, depth_key: data_instance.depth, annotation_x_key:  annotation_x_aux, annotation_y_key: annotation_y_aux, label_angle_key : data_instance.label_angle, label_color_key : data_instance.label_color, label_size_key : data_instance.label_size}
                 #Data for Omega
                 yaux = 2.737E36*(xaux**2)*(yaux**2)
                 annotation_y_aux = 2.737E36*(annotation_x_aux**2)*(annotation_y_aux**2)
                 curves_dict_Omega[label] = {x_key: xaux, y_key: yaux, color_key: data_instance.color, linewidth_key: data_instance.linewidth, linestyle_key: data_instance.linestyle, opacity_key: data_instance.opacity, depth_key: data_instance.depth, annotation_x_key:  annotation_x_aux, annotation_y_key: annotation_y_aux, label_angle_key : data_instance.label_angle, label_color_key : data_instance.label_color, label_size_key : data_instance.label_size}
+                #Data for Sh
+                yaux = yaux_h**2/xaux
+                annotation_y_aux = (annotation_y_aux_h**2)/(annotation_x_aux)
+                curves_dict_Sh[label] = {x_key: xaux, y_key: yaux, color_key: data_instance.color, linewidth_key: data_instance.linewidth, linestyle_key: data_instance.linestyle, opacity_key: data_instance.opacity, depth_key: data_instance.depth, annotation_x_key:  annotation_x_aux, annotation_y_key: annotation_y_aux, label_angle_key : data_instance.label_angle, label_color_key : data_instance.label_color, label_size_key : data_instance.label_size}
             else:
                 xextra = np.array([ xaux[xlength-1] for _ in range(nextra) ])
                 yextra = np.array([ yaux[xlength-1] for _ in range(nextra) ])
                 xaux = np.concatenate([xaux,xextra])
                 yaux = np.concatenate([yaux,yextra])
+                yaux_h = yaux
+                annotation_y_aux_h = annotation_y_aux
                 curves_dict[label] = {x_key: xaux, y_key: yaux, color_key: data_instance.color, linewidth_key: data_instance.linewidth, linestyle_key: data_instance.linestyle,  opacity_key: data_instance.opacity, depth_key: data_instance.depth, annotation_x_key:  annotation_x_aux, annotation_y_key: annotation_y_aux, label_angle_key : data_instance.label_angle, label_color_key : data_instance.label_color, label_size_key : data_instance.label_size}
                 #Data for Omega
                 yaux = 2.737E36*(xaux**2)*(yaux**2)
                 annotation_y_aux = 2.737E36*(annotation_x_aux**2)*(annotation_y_aux**2)
                 curves_dict_Omega[label] = {x_key: xaux, y_key: yaux, color_key: data_instance.color, linewidth_key: data_instance.linewidth, linestyle_key: data_instance.linestyle,  opacity_key: data_instance.opacity, depth_key: data_instance.depth, annotation_x_key:  annotation_x_aux, annotation_y_key: annotation_y_aux, label_angle_key : data_instance.label_angle, label_color_key : data_instance.label_color, label_size_key : data_instance.label_size}
+                #Data for Sh
+                yaux = yaux_h**2/xaux
+                annotation_y_aux = (annotation_y_aux_h**2)/(annotation_x_aux)
+                curves_dict_Sh[label] = {x_key: xaux, y_key: yaux, color_key: data_instance.color, linewidth_key: data_instance.linewidth, linestyle_key: data_instance.linestyle, opacity_key: data_instance.opacity, depth_key: data_instance.depth, annotation_x_key:  annotation_x_aux, annotation_y_key: annotation_y_aux, label_angle_key : data_instance.label_angle, label_color_key : data_instance.label_color, label_size_key : data_instance.label_size}
         #If SignalLines, we plot line segments
         elif (category == 'SignalLines') or (category == 'TheoreticalBounds'):
             x_key = f'x_{label}'
@@ -380,21 +481,33 @@ def create_curves_dict(data_instances, category_dict, hmax):
             xlength = len(xaux)
             nextra = maxLengthLines- len(xaux)
             if nextra==0:
+                yaux_h = yaux
+                annotation_y_aux_h = annotation_y_aux
                 curves_dict[label] = {x_key: xaux, y_key: yaux, color_key: data_instance.color, linewidth_key: data_instance.linewidth, linestyle_key: data_instance.linestyle, opacity_key: data_instance.opacity, depth_key: data_instance.depth, annotation_x_key:  annotation_x_aux, annotation_y_key: annotation_y_aux, label_angle_key : data_instance.label_angle, label_color_key : data_instance.label_color, label_size_key : data_instance.label_size}
                 #Data for Omega
                 yaux = 2.737E36*(xaux**2)*(yaux**2)
                 annotation_y_aux = 2.737E36*(annotation_x_aux**2)*(annotation_y_aux**2)
                 curves_dict_Omega[label] = {x_key: xaux, y_key: yaux, color_key: data_instance.color, linewidth_key: data_instance.linewidth, linestyle_key: data_instance.linestyle, opacity_key: data_instance.opacity, depth_key: data_instance.depth, annotation_x_key:  annotation_x_aux, annotation_y_key: annotation_y_aux, label_angle_key : data_instance.label_angle, label_color_key : data_instance.label_color, label_size_key : data_instance.label_size}
+                #Data for Sh
+                yaux = yaux_h**2/xaux
+                annotation_y_aux = (annotation_y_aux_h**2)/(annotation_x_aux)
+                curves_dict_Sh[label] = {x_key: xaux, y_key: yaux, color_key: data_instance.color, linewidth_key: data_instance.linewidth, linestyle_key: data_instance.linestyle, opacity_key: data_instance.opacity, depth_key: data_instance.depth, annotation_x_key:  annotation_x_aux, annotation_y_key: annotation_y_aux, label_angle_key : data_instance.label_angle, label_color_key : data_instance.label_color, label_size_key : data_instance.label_size}
             else:
                 xextra = np.array([ xaux[xlength-1] for _ in range(nextra) ])
                 yextra = np.array([ yaux[xlength-1] for _ in range(nextra) ])
                 xaux = np.concatenate([xaux,xextra])
                 yaux = np.concatenate([yaux,yextra])
+                yaux_h = yaux
+                annotation_y_aux_h = annotation_y_aux
                 curves_dict[label] = {x_key: xaux, y_key: yaux, color_key: data_instance.color, linewidth_key: data_instance.linewidth, linestyle_key: data_instance.linestyle,  opacity_key: data_instance.opacity, depth_key: data_instance.depth, annotation_x_key:  annotation_x_aux, annotation_y_key: annotation_y_aux, label_angle_key : data_instance.label_angle, label_color_key : data_instance.label_color, label_size_key : data_instance.label_size}
                 #Data for Omega
                 yaux = 2.737E36*(xaux**2)*(yaux**2)
                 annotation_y_aux = 2.737E36*(annotation_x_aux**2)*(annotation_y_aux**2)
                 curves_dict_Omega[label] = {x_key: xaux, y_key: yaux, color_key: data_instance.color, linewidth_key: data_instance.linewidth, linestyle_key: data_instance.linestyle,  opacity_key: data_instance.opacity, depth_key: data_instance.depth, annotation_x_key:  annotation_x_aux, annotation_y_key: annotation_y_aux, label_angle_key : data_instance.label_angle, label_color_key : data_instance.label_color, label_size_key : data_instance.label_size}
+                #Data for Sh
+                yaux = yaux_h**2/xaux
+                annotation_y_aux = (annotation_y_aux_h**2)/(annotation_x_aux)
+                curves_dict_Sh[label] = {x_key: xaux, y_key: yaux, color_key: data_instance.color, linewidth_key: data_instance.linewidth, linestyle_key: data_instance.linestyle, opacity_key: data_instance.opacity, depth_key: data_instance.depth, annotation_x_key:  annotation_x_aux, annotation_y_key: annotation_y_aux, label_angle_key : data_instance.label_angle, label_color_key : data_instance.label_color, label_size_key : data_instance.label_size}
         else:
             #Here we plot current bounds, shaded areas
             x_key = f'x_{label}'
@@ -410,13 +523,21 @@ def create_curves_dict(data_instances, category_dict, hmax):
             else:
                 annotation_x_aux =  xaux[0]
                 annotation_y_aux =  yaux[0]
+            yaux_h = yaux
+            y2aux_h = y2aux
+            annotation_y_aux_h = annotation_y_aux
             curves_dict[label] = {x_key: xaux, y_key: yaux,  y2_key: y2aux, color_key: data_instance.color, linewidth_key: data_instance.linewidth, linestyle_key: data_instance.linestyle, opacity_key: data_instance.opacity, depth_key: data_instance.depth, annotation_x_key:  annotation_x_aux, annotation_y_key: annotation_y_aux, label_angle_key : data_instance.label_angle, label_color_key : data_instance.label_color, label_size_key : data_instance.label_size}
             #Data for Omega
             yaux = 2.737E36*(xaux**2)*(yaux**2)
             y2aux = 2.737E36*(xaux**2)*(y2aux**2)
             annotation_y_aux = 2.737E36*(annotation_x_aux**2)*(annotation_y_aux**2)
             curves_dict_Omega[label] = {x_key: xaux, y_key: yaux,  y2_key: y2aux, color_key: data_instance.color, linewidth_key: data_instance.linewidth, linestyle_key: data_instance.linestyle, opacity_key: data_instance.opacity, depth_key: data_instance.depth, annotation_x_key:  annotation_x_aux, annotation_y_key: annotation_y_aux, label_angle_key : data_instance.label_angle, label_color_key : data_instance.label_color, label_size_key : data_instance.label_size}
-    return curves_dict, curves_dict_Omega
+            #Data for Sh
+            yaux = yaux_h**2/xaux
+            y2aux = y2aux_h**2/xaux
+            annotation_y_aux = (annotation_y_aux_h**2)/(annotation_x_aux)
+            curves_dict_Sh[label] = {x_key: xaux, y_key: yaux,  y2_key: y2aux, color_key: data_instance.color, linewidth_key: data_instance.linewidth, linestyle_key: data_instance.linestyle, opacity_key: data_instance.opacity, depth_key: data_instance.depth, annotation_x_key:  annotation_x_aux, annotation_y_key: annotation_y_aux, label_angle_key : data_instance.label_angle, label_color_key : data_instance.label_color, label_size_key : data_instance.label_size}
+    return curves_dict, curves_dict_Omega, curves_dict_Sh
 
 
 

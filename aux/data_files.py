@@ -39,7 +39,7 @@ detector_data = [
     ('Curves/DetectorCurves/ORGAN.txt', 'ORGAN', 'Projected bound', 'black', 1, 'solid', 1, 'glyph', None, 26.531e9 + 3.E11, 2.10855e-15, np.pi/2,  'black', '7pt'),
     # Projected Curves
     #(file, label, category, color, linewidth,linestyle, opacity, depth level, comment, x-shift of label, y-shift of label, angle of label, label color, label size)
-    ('Curves/DetectorCurves/ResonantAntennas.txt', 'Res. antennas', 'Projected curve', darker, 1, 'solid', 1, 'glyph', None, None, None, 0,  darker, '9pt'),
+    #('Curves/DetectorCurves/ResonantAntennas.txt', 'Res. antennas', 'Projected curve', darker, 1, 'solid', 1, 'glyph', None, None, None, 0,  darker, '9pt'),
     ('Curves/DetectorCurves/DMR8.txt', 'DMR 8', 'Projected curve', darker, 1, 'solid',  1, 'glyph', None, None, None, np.pi/2,  darker, '9pt'),
     ('Curves/DetectorCurves/DMR100.txt', 'DMR 100', 'Projected curve', clearer, 1, 'solid', 1, 'glyph', None, None, None, np.pi/2,  clearer, '9pt'),
     ('Curves/DetectorCurves/BBO.txt', 'BBO', 'Projected curve', kblue, 1, 'solid', 1, 'glyph', 'Comment on BBO.',1e-3+10**-1,4.440521733552400e-22 - 4.44051*10**-22, 0, kblue, '9pt'),
@@ -58,13 +58,27 @@ detector_data = [
 
 signal_data = [
     #(file, label, category, color, linewidth,linestyle, opacity, depth level, comment, x-shift of label, y-shift of label, angle of label, label color, label size)
-    ('Curves/SignalCurves/CosmologicalSources/Strings/String_hc_spectrum_Gmu=1E-11', 'Global string Gmu=1E-11', 'Signal curve', 'gray', 2, 'solid', 1, 'glyph', 'Comment on Gmu = -11.', 0, 0, 0,  'gray', '9pt'),
+    ###Global strings
+    ('Curves/SignalCurves/CosmologicalSources/Strings/String_hc_spectrum_Gmu=1E-11', 'Global string Gmu=1E-11', 'Signal curve', 'gray', 2, 'solid', 1, 'glyph', 'Comment on global strings: ', 0, 0, 0,  'gray', '9pt'),
     ('Curves/SignalCurves/CosmologicalSources/Strings/String_hc_spectrum_Gmu=1E-12', 'Global string Gmu=1E-12', 'Signal curve', 'gray', 2, 'solid', 0.85, 'glyph', None, None, None, 0, 'gray', '9pt'),
     ('Curves/SignalCurves/CosmologicalSources/Strings/String_hc_spectrum_Gmu=1E-13', 'Global string Gmu=1E-13', 'Signal curve', 'gray', 2, 'solid', 0.7, 'glyph', None, None, None, 0, 'gray', '9pt'),
     ('Curves/SignalCurves/CosmologicalSources/Strings/String_hc_spectrum_Gmu=1E-14', 'Global string Gmu=1E-14', 'Signal curve', 'gray', 2, 'solid', 0.55, 'glyph', None, None, None, 0, 'gray', '9pt'),
     ('Curves/SignalCurves/CosmologicalSources/Strings/String_hc_spectrum_Gmu=1E-15', 'Global string Gmu=1E-15', 'Signal curve', 'gray', 2, 'solid', 0.4, 'glyph', None, None, None, 0, 'gray', '9pt'),
     ('Curves/SignalCurves/CosmologicalSources/Strings/String_hc_spectrum_Gmu=1E-16', 'Global string Gmu=1E-16', 'Signal curve', 'gray', 2, 'solid', 0.25, 'glyph', None, None, None, 0, 'gray', '9pt'),
     ('Curves/SignalCurves/CosmologicalSources/Strings/String_hc_spectrum_Gmu=1E-17', 'Global string Gmu=1E-17', 'Signal curve', 'gray', 2, 'solid', 0.1, 'glyph', None, None, None, 0, 'gray', '9pt'),
+    ####PBHs
+    ('Curves/SignalCurves/PBHs/Stochastic/PBH_Stochastic_h_mass6.txt', 'PBH_MPBH=1E-6', 'Signal curve', 'gray', 2, 'solid', 1, 'glyph', 'Comment on PBH : ', 0, 0, 0,  'gray', '9pt'),
+    ('Curves/SignalCurves/PBHs/Stochastic/PBH_Stochastic_h_mass7.txt', 'PBH_MPBH=1E-7', 'Signal curve', 'gray', 2, 'solid', 1, 'glyph', None, None, None, 0,  'gray', '9pt'),
+    ('Curves/SignalCurves/PBHs/Stochastic/PBH_Stochastic_h_mass8.txt', 'PBH_MPBH=1E-8', 'Signal curve', 'gray', 2, 'solid', 1, 'glyph', None, None, None, 0,  'gray', '9pt'),
+    ('Curves/SignalCurves/PBHs/Stochastic/PBH_Stochastic_h_mass9.txt', 'PBH_MPBH=1E-9', 'Signal curve', 'gray', 2, 'solid', 1, 'glyph', None, None, None, 0,  'gray', '9pt'),
+    ('Curves/SignalCurves/PBHs/Stochastic/PBH_Stochastic_h_mass10.txt', 'PBH_MPBH=1E-10', 'Signal curve', 'gray', 2, 'solid', 1, 'glyph', None, None, None, 0,  'gray', '9pt'),
+    ('Curves/SignalCurves/PBHs/Stochastic/PBH_Stochastic_h_mass11.txt', 'PBH_MPBH=1E-11', 'Signal curve', 'gray', 2, 'solid', 1, 'glyph', None, None, None, 0,  'gray', '9pt'),
+    ('Curves/SignalCurves/PBHs/Stochastic/PBH_Stochastic_h_mass12.txt', 'PBH_MPBH=1E-12', 'Signal curve', 'gray', 2, 'solid', 1, 'glyph', None, None, None, 0,  'gray', '9pt'),
+    ('Curves/SignalCurves/PBHs/Stochastic/PBH_Stochastic_h_mass13.txt', 'PBH_MPBH=1E-13', 'Signal curve', 'gray', 2, 'solid', 1, 'glyph', None, None, None, 0,  'gray', '9pt'),
+    ('Curves/SignalCurves/PBHs/Stochastic/PBH_Stochastic_h_mass14.txt', 'PBH_MPBH=1E-14', 'Signal curve', 'gray', 2, 'solid', 1, 'glyph', None, None, None, 0,  'gray', '9pt'),
+    ('Curves/SignalCurves/PBHs/Stochastic/PBH_Stochastic_h_mass15.txt', 'PBH_MPBH=1E-15', 'Signal curve', 'gray', 2, 'solid', 1, 'glyph', None, None, None, 0,  'gray', '9pt'),
+    ('Curves/SignalCurves/PBHs/Stochastic/PBH_Stochastic_h_mass16.txt', 'PBH_MPBH=1E-16', 'Signal curve', 'gray', 2, 'solid', 1, 'glyph', None, None, None, 0,  'gray', '9pt'),
+    ##
     ('Curves/SignalCurves/CosmologicalSources/hc_SMASH_full_benchmark_1.txt', 'SMASH 1', 'Signal curve', 'orangered', 2, 'solid', 1, 'glyph', None, 8E5, 9E-34, 0, 'orangered', '9pt'),
     ('Curves/SignalCurves/CosmologicalSources/hc_SMASH_full_benchmark_2.txt', 'SMASH2', 'Signal curve', 'orangered', 2, 'solid', 1, 'glyph', None, 8E9, 1E-34, 0, 'orangered', '9pt'),
     ##
@@ -88,7 +102,8 @@ signal_data = [
     ##
     ('Curves/SignalCurves/CosmologicalSources/hcCGMB_SM_Mp','CGMB',  'Signal curve', mplcolors[2], 2, 'solid', 1, 'glyph', None, None, None, 0, mplcolors[2], '9pt'),
     (' ','Global strings', 'Signal curve', mplcolors[0], 2, 'solid', 1, 'glyph', None, None, None, 0, mplcolors[0], '9pt'),
-    (' ','1st-order p.t.',  'Signal curve', mplcolors[1], 2, 'solid', 1, 'glyph', None, None, None, np.pi/4, mplcolors[1], '9pt')
+    (' ','1st-order p.t.',  'Signal curve', mplcolors[1], 2, 'solid', 1, 'glyph', None, None, None, np.pi/4, mplcolors[1], '9pt'),
+    (' ','PBHs', 'Signal curve', mplcolors[3], 2, 'solid', 1, 'glyph', None, None, None, 0, mplcolors[3], '9pt'),
     ]
 
 theoretical_bounds_data = [#(file, label, category, color, linewidth,linestyle, opacity, depth level, comment, x-shift of label, y-shift of label, angle of label, label color, label size)

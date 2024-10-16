@@ -17,6 +17,7 @@ from aux.aux_functions import alpha0
 from aux.aux_functions import betaOverH0
 from aux.aux_functions import vw0
 from aux.aux_functions import Gmu0
+from aux.aux_functions import MPBH0
 from aux.aux_functions import gstar0
 
 
@@ -54,7 +55,7 @@ app = Flask(__name__)
 # Create a dictionary category_dict containing the experiment labels divided into categories (Indirect bounds, Direct bounds, Projected bounds and others)
 
 
-data_instances, category_dict, hc_cosmic_strings = load_and_categorize_data(detector_data, signal_data, theoretical_bounds_data)
+data_instances, category_dict, hc_cosmic_strings, hc_PBH = load_and_categorize_data(detector_data, signal_data, theoretical_bounds_data)
 
 ## Define app section
 
@@ -105,6 +106,7 @@ def bokeh_plot_app(doc):
     betaOverH = betaOverH0
     vw = vw0
     Gmu = Gmu0
+    MPBH = MPBH0
     gstar = gstar0
     Mp = 2.43536E18 #Planck mass
     TCGMB = Mp #Initial CGMB temp plotted at Planck T
@@ -134,8 +136,12 @@ def bokeh_plot_app(doc):
     Omegamin = 10.**-40.
     Omegamax = 10.**25.
 
+    Shmin = 10.**-96.
+    Shmax = 10.**-2.
+
     hrangechanged = 0
     Omegarangechanged = 0
+    Shrangechanged = 0
     fmin = 10**-18.
     fmax = 10**20.
     frangechanged = 0
@@ -172,12 +178,12 @@ def bokeh_plot_app(doc):
 
     # Set up the sliders
 
-    slider_x, slider_y, slider_y_Omega, slider_width,  slider_height, slider_pt_temp,  slider_pt_alpha, slider_pt_betaOverH, slider_pt_vw, slider_cosmic_strings, slider_CGMB, h_vs_Omega_buttons = create_sliders(fig, Omegamin, Omegamax)
+    slider_x, slider_y, slider_y_Omega,  slider_y_Sh, slider_width,  slider_height, slider_pt_temp,  slider_pt_alpha, slider_pt_betaOverH, slider_pt_vw, slider_cosmic_strings, slider_CGMB, slider_PBH, h_vs_Omega_buttons = create_sliders(fig, Omegamin, Omegamax, Shmin, Shmax)
 
 
     # Create dictionary of curves
 
-    curves_dict, curves_dict_Omega = create_curves_dict(data_instances, category_dict, hmax)
+    curves_dict, curves_dict_Omega, curves_dict_Sh = create_curves_dict(data_instances, category_dict, hmax)
 
 
     # Link curves to a chart
@@ -187,20 +193,22 @@ def bokeh_plot_app(doc):
     #Main plot with range/size sliders
     layout = column(h_vs_Omega_buttons, fig)
     #Sliders for range/size
-    layout_size = column(Div(text="<h1>Plot range and size</h1>"), slider_x, slider_y, slider_y_Omega,  slider_width, slider_height)
+    layout_size = column(Div(text="<h1>Plot range and size</h1>"), slider_x, slider_y, slider_y_Omega, slider_y_Sh,  slider_width, slider_height)
     # #Sliders for phase transition parameters
     layout2 = column(Div(text="<h1>Phase transitions</h1>"), slider_pt_temp, slider_pt_alpha, slider_pt_betaOverH, slider_pt_vw)
     #Slider for phase cosmic strings
     layout_cosmic_strings = column(Div(text="<h1>Global strings</h1>"),slider_cosmic_strings)
     #Slider for CGMB
     layout_CGMB = column(Div(text="<h1>CGMB</h1>"),slider_CGMB)
+    #Slider for PBH
+    layout_PBH = column(Div(text="<h1>PBHs (stochastic)</h1>"),slider_PBH)
 
 
 
 
 
-    # Update plot data when changing between h and Omega-- ColumnDataSources and annotations
-    def update_plot_data(curves_dict, curves_dict_Omega, category_dict, what_to_plot):
+    # Update plot data when changing between h and Omega and Sh-- ColumnDataSources and annotations
+    def update_plot_data(curves_dict, curves_dict_Omega, curves_dict_Sh, category_dict, what_to_plot):
 
 
         nonlocal plot_source_areas
@@ -227,9 +235,10 @@ def bokeh_plot_app(doc):
 
         if what_to_plot == 0:
             curves_dict_to_use = curves_dict
-        else:
+        elif what_to_plot == 1:
             curves_dict_to_use = curves_dict_Omega
-
+        elif what_to_plot == 2:
+            curves_dict_to_use = curves_dict_Sh
         #Update plot_sources
 
 
@@ -262,6 +271,10 @@ def bokeh_plot_app(doc):
                 ratio = ((np.log10(hmax)-np.log10(hmin))/(np.log10(fmax)-np.log10(fmin)))*fig.width/fig.height
                 new_label_angle = np.arctan(0.9/ratio*(np.tan(label_angle)))
                 new_data_annotation[label_angle_key] = [new_label_angle]
+            if what_to_plot == 2 and  (label_angle) != 0:
+                ratio = ((np.log10(Shmax)-np.log10(Shmin))/(np.log10(fmax)-np.log10(fmin)))*fig.width/fig.height
+                new_label_angle = np.arctan(1/ratio*(2.*np.tan(label_angle)-1))
+                new_data_annotation[label_angle_key] = [new_label_angle]
 
 
 
@@ -283,7 +296,16 @@ def bokeh_plot_app(doc):
                     x_key = f'xCurve_{label}'
                     y_key = f'yCurve_{label}'
                     new_data_curves[x_key] = data[x_key]
-                    new_data_curves[y_key] = data[y_key]
+                    if (y_key == 'yCurve_CGMB' ):
+                        if (what_to_plot == 0):
+                            #Plot h, rescales as Sqrt(T/MP) wrt to case with T=Mp stored in dict
+                            new_data_curves[y_key] = np.array(np.sqrt(TCGMB/Mp)*data[y_key])
+                        else:
+                            #Plot Omega or Sh, both scale as (T/MP)  wrt to case with T=Mp stored in dict
+                            new_data_curves[y_key] =  np.array((TCGMB/Mp)*data[y_key])
+                    else:
+                        #Not in CGMB, just regular substitution
+                        new_data_curves[y_key] = data[y_key]
                     #fig.line(x = x_key, y = y_key, source= plot_source_curves,  color = data[color_key], line_width = data[linewidth_key], line_dash = data[linestyle_key], line_alpha = data[opacity_key], level = data[depth_key], name = label, visible=False)
                 elif (category == 'SignalLines') or (category == 'TheoreticalBounds') :
                     #also line plot but use different names
@@ -327,22 +349,28 @@ def bokeh_plot_app(doc):
              fig.y_range.start = Omegamin
              fig.y_range.end = Omegamax
              fig.yaxis.axis_label = r'$$h^2 \Omega$$'
+        elif what_to_plot == 2:
+             fig.y_range.start = Shmin
+             fig.y_range.end = Shmax
+             fig.yaxis.axis_label = r'$$S_h\,\, [{\rm Hz}^{-1}]$$'
         # Call the update_plot_data function and update new_data
-        update_plot_data(curves_dict, curves_dict_Omega, category_dict, what_to_plot)
+        update_plot_data(curves_dict, curves_dict_Omega, curves_dict_Sh, category_dict, what_to_plot)
 
 
     h_vs_Omega_buttons.on_change('active', lambda attr, old, new:  h_vs_Omega_button_handler(new, curves_dict, curves_dict_Omega, category_dict))
 
     #Function that updates annotation_angles and positions
-    def update_annotation_angles(curves_dict, curves_dict_Omega, what_to_plot, annotation_source, fig, fmin, fmax, hmin, hmax, Omegamin, Omegamax):
+    def update_annotation_angles(curves_dict, curves_dict_Omega, curves_dict_Sh, what_to_plot, annotation_source, fig, fmin, fmax, hmin, hmax, Omegamin, Omegamax, Shmin, Shmax):
 
         # To reduce individual changes (communications with server) update main variable only once, so we use first copy
         new_data_annotation = dict(annotation_source.data)
 
         if what_to_plot == 0:
             curves_dict_to_use = curves_dict
-        else:
+        elif what_to_plot == 1:
             curves_dict_to_use = curves_dict_Omega
+        elif what_to_plot == 2:
+            curves_dict_to_use = curves_dict_Sh
 
         #Update plot_sources
 
@@ -372,12 +400,18 @@ def bokeh_plot_app(doc):
                 new_label_angle = np.arctan(0.9/ratio*(np.tan(label_angle)))
                 new_data_annotation[label_angle_key] = [new_label_angle]
 
+            if what_to_plot == 2 and  (label_angle) != 0:
+                ratio = ((np.log10(Shmax)-np.log10(Shmin))/(np.log10(fmax)-np.log10(fmin)))*fig.width/fig.height
+                new_label_angle = np.arctan(1/ratio*(2.*np.tan(label_angle)-1))
+                new_data_annotation[label_angle_key] = [new_label_angle]
+
+
 
         return new_data_annotation
 
 
     #Define a callback function for plot size, and update annotation angles, for example after changing range which affects aspect ratio
-    def update_frange(new, curves_dict, curves_dict_Omega, what_to_plot):
+    def update_frange(new, curves_dict, curves_dict_Omega, curves_dict_Sh, what_to_plot):
 
         nonlocal fig
         nonlocal annotation_source
@@ -389,12 +423,12 @@ def bokeh_plot_app(doc):
         fig.x_range.start  = fmin
         fig.x_range.end = fmax
 
-        annotation_source.data = update_annotation_angles(curves_dict, curves_dict_Omega, what_to_plot, annotation_source, fig, fmin, fmax, hmin, hmax, Omegamin, Omegamax)
+        annotation_source.data = update_annotation_angles(curves_dict, curves_dict_Omega, curves_dict_Sh, what_to_plot, annotation_source, fig, fmin, fmax, hmin, hmax, Omegamin, Omegamax, Shmin, Shmax)
 
 
-    slider_x.on_change('value', lambda attr, old, new: update_frange(new, curves_dict, curves_dict_Omega,  what_to_plot))
+    slider_x.on_change('value', lambda attr, old, new: update_frange(new, curves_dict, curves_dict_Omega, curves_dict_Sh, what_to_plot))
 
-    def update_hrange(new, curves_dict, curves_dict_Omega, what_to_plot):
+    def update_hrange(new, curves_dict, curves_dict_Omega, curves_dict_Sh, what_to_plot):
 
         nonlocal fig
         nonlocal annotation_source
@@ -408,12 +442,12 @@ def bokeh_plot_app(doc):
             fig.y_range.start = hmin
             fig.y_range.end = hmax
 
-            annotation_source.data =  update_annotation_angles(curves_dict, curves_dict_Omega, what_to_plot, annotation_source, fig, fmin, fmax, hmin, hmax, Omegamin, Omegamax)
+            annotation_source.data =  update_annotation_angles(curves_dict, curves_dict_Omega, curves_dict_Sh, what_to_plot, annotation_source, fig, fmin, fmax, hmin, hmax, Omegamin, Omegamax, Shmin, Shmax)
 
 
-    slider_y.on_change('value', lambda attr, old, new: update_hrange(new, curves_dict, curves_dict_Omega, what_to_plot))
+    slider_y.on_change('value', lambda attr, old, new: update_hrange(new, curves_dict, curves_dict_Omega, curves_dict_Sh, what_to_plot))
 
-    def update_Omegarange(new, curves_dict, curves_dict_Omega, what_to_plot):
+    def update_Omegarange(new, curves_dict, curves_dict_Omega, curves_dict_Sh, what_to_plot):
 
         nonlocal annotation_source
         nonlocal fig
@@ -427,22 +461,40 @@ def bokeh_plot_app(doc):
             fig.y_range.start = Omegamin
             fig.y_range.end = Omegamax
 
-            annotation_source.data =  update_annotation_angles(curves_dict, curves_dict_Omega, what_to_plot, annotation_source, fig, fmin, fmax, hmin, hmax, Omegamin, Omegamax)
+            annotation_source.data =  update_annotation_angles(curves_dict, curves_dict_Omega, curves_dict_Sh, what_to_plot, annotation_source, fig, fmin, fmax, hmin, hmax, Omegamin, Omegamax, Shmin, Shmax)
 
-    slider_y_Omega.on_change('value', lambda attr, old, new: update_Omegarange(new, curves_dict, curves_dict_Omega, what_to_plot))
+    slider_y_Omega.on_change('value', lambda attr, old, new: update_Omegarange(new, curves_dict, curves_dict_Omega, curves_dict_Sh, what_to_plot))
+
+    def update_Shrange(new, curves_dict, curves_dict_Omega, curves_dict_Sh, what_to_plot):
+
+        nonlocal annotation_source
+        nonlocal fig
+        nonlocal Shmin
+        nonlocal Shmax
+
+        Shmin = 10.**new[0]
+        Shmax = 10.**new[1]
+
+        if what_to_plot == 2:
+            fig.y_range.start = Shmin
+            fig.y_range.end = Shmax
+
+            annotation_source.data =  update_annotation_angles(curves_dict, curves_dict_Omega, curves_dict_Sh, what_to_plot, annotation_source, fig, fmin, fmax, hmin, hmax, Omegamin, Omegamax, Shmin, Shmax)
+
+    slider_y_Sh.on_change('value', lambda attr, old, new: update_Shrange(new, curves_dict, curves_dict_Omega, curves_dict_Sh, what_to_plot))
 
 
-    def update_width(new, curves_dict, curves_dict_Omega, what_to_plot):
+    def update_width(new, curves_dict, curves_dict_Omega, curves_dict_Sh, what_to_plot):
 
         nonlocal fig
         nonlocal annotation_source
 
         fig.width = slider_width.value;
 
-        annotation_source.data =  update_annotation_angles(curves_dict, curves_dict_Omega, what_to_plot, annotation_source, fig, fmin, fmax, hmin, hmax, Omegamin, Omegamax)
+        annotation_source.data =  update_annotation_angles(curves_dict, curves_dict_Omega, curves_dict_Sh, what_to_plot, annotation_source, fig, fmin, fmax, hmin, hmax, Omegamin, Omegamax, Shmin, Shmax)
 
 
-    slider_width.on_change('value', lambda attr, old, new: update_width(new, curves_dict, curves_dict_Omega, what_to_plot))
+    slider_width.on_change('value', lambda attr, old, new: update_width(new, curves_dict, curves_dict_Omega, curves_dict_Sh, what_to_plot))
 
 
     def update_height(new, curves_dict, curves_dict_Omega, what_to_plot):
@@ -451,7 +503,7 @@ def bokeh_plot_app(doc):
         nonlocal annotation_source
 
         fig.height = slider_height.value;
-        annotation_source.data =  update_annotation_angles(curves_dict, curves_dict_Omega, what_to_plot, annotation_source, fig, fmin, fmax, hmin, hmax, Omegamin, Omegamax)
+        annotation_source.data =  update_annotation_angles(curves_dict, curves_dict_Omega, curves_dict_Sh, what_to_plot, annotation_source, fig, fmin, fmax, hmin, hmax, Omegamin, Omegamax, Shmin, Shmax)
 
     slider_height.on_change('value',  lambda attr, old, new: update_height(new, curves_dict, curves_dict_Omega, what_to_plot))
 
@@ -486,12 +538,16 @@ def bokeh_plot_app(doc):
             delta_y = 1.e-5*min(hmin,Omegamin)
             label_angle = 0.
 
+        y_coord_h = y_coord
+        delta_y_h = delta_y
+        delta_x_h = delta_x
 
         curves_dict['1st-order p.t.']['yCurve_1st-order p.t.'] = y_coord
         curves_dict['1st-order p.t.']['annotation_x_1st-order p.t.'] = delta_x
         curves_dict['1st-order p.t.']['annotation_y_1st-order p.t.'] = delta_y
         curves_dict['1st-order p.t.']['label_angle_1st-order p.t.'] = label_angle
 
+        #Coords for Omega
         y_coord = 2.737E36*(x_coord**2)*(y_coord**2)
         delta_y = 2.737E36*(delta_x**2)*(delta_y**2)
 
@@ -500,13 +556,23 @@ def bokeh_plot_app(doc):
         curves_dict_Omega['1st-order p.t.']['annotation_y_1st-order p.t.'] = delta_y
         curves_dict_Omega['1st-order p.t.']['label_angle_1st-order p.t.'] = label_angle
 
+        #Coords for Sh
+        y_coord = y_coord_h**2/x_coord
+        delta_y = delta_y_h**2/delta_x_h
+
+        curves_dict_Sh['1st-order p.t.']['yCurve_1st-order p.t.'] = y_coord
+        curves_dict_Sh['1st-order p.t.']['annotation_x_1st-order p.t.'] = delta_x
+        curves_dict_Sh['1st-order p.t.']['annotation_y_1st-order p.t.'] = delta_y
+        curves_dict_Sh['1st-order p.t.']['label_angle_1st-order p.t.'] = label_angle
 
         if what_to_plot == 0:
             plot_source_curves.data['yCurve_1st-order p.t.'] = curves_dict['1st-order p.t.']['yCurve_1st-order p.t.']
-        else:
+        elif what_to_plot == 1:
             plot_source_curves.data['yCurve_1st-order p.t.'] = curves_dict_Omega['1st-order p.t.']['yCurve_1st-order p.t.']
+        elif what_to_plot == 2:
+            plot_source_curves.data['yCurve_1st-order p.t.'] = curves_dict_Sh['1st-order p.t.']['yCurve_1st-order p.t.']
 
-        annotation_source.data = update_annotation_angles(curves_dict, curves_dict_Omega, what_to_plot, annotation_source, fig, fmin, fmax, hmin, hmax, Omegamin, Omegamax)
+        annotation_source.data = update_annotation_angles(curves_dict, curves_dict_Omega, curves_dict_Sh, what_to_plot, annotation_source, fig, fmin, fmax, hmin, hmax, Omegamin, Omegamax, Shmin, Shmax)
 
 
 
@@ -563,12 +629,16 @@ def bokeh_plot_app(doc):
             delta_y = 1.e-5*min(hmin,Omegamin)
             label_angle = 0.
 
+        y_coord_h = y_coord
+        delta_y_h = delta_y
+        delta_x_h = delta_x
+
         curves_dict['Global strings']['yCurve_Global strings'] = y_coord
         curves_dict['Global strings']['annotation_x_Global strings'] = delta_x
         curves_dict['Global strings']['annotation_y_Global strings'] = delta_y
         curves_dict['Global strings']['label_angle_Global strings'] = label_angle
 
-
+        #Change values of Omega
         y_coord = 2.737E36*(x_coord**2)*(y_coord**2)
         delta_y = 2.737E36*(delta_x**2)*(delta_y**2)
 
@@ -577,13 +647,24 @@ def bokeh_plot_app(doc):
         curves_dict_Omega['Global strings']['annotation_y_Global strings'] = delta_y
         curves_dict_Omega['Global strings']['label_angle_Global strings'] = label_angle
 
+        #Change values of Sh
+        y_coord = y_coord_h**2/x_coord
+        delta_y = delta_y_h**2/delta_x_h
+
+        curves_dict_Sh['Global strings']['yCurve_Global strings'] = y_coord
+        curves_dict_Sh['Global strings']['annotation_x_Global strings'] = delta_x
+        curves_dict_Sh['Global strings']['annotation_y_Global strings'] = delta_y
+        curves_dict_Sh['Global strings']['label_angle_Global strings'] = label_angle
+
         # Update the shared data source when the slider changes
         if what_to_plot == 0:
             plot_source_curves.data['yCurve_Global strings'] = curves_dict['Global strings']['yCurve_Global strings']
-        else:
+        elif what_to_plot == 1:
             plot_source_curves.data['yCurve_Global strings'] = curves_dict_Omega['Global strings']['yCurve_Global strings']
+        elif what_to_plot == 2:
+            plot_source_curves.data['yCurve_Global strings'] = curves_dict_Sh['Global strings']['yCurve_Global strings']
 
-        annotation_source.data = update_annotation_angles(curves_dict, curves_dict_Omega, what_to_plot, annotation_source, fig, fmin, fmax, hmin, hmax, Omegamin, Omegamax)
+        annotation_source.data = update_annotation_angles(curves_dict, curves_dict_Omega, curves_dict_Sh, what_to_plot, annotation_source, fig, fmin, fmax, hmin, hmax, Omegamin, Omegamax, Shmin, Shmax)
 
 
     # Define a callback function for the phase transition sliders
@@ -595,6 +676,91 @@ def bokeh_plot_app(doc):
 
     # Attach the Python function to the 'value' change event of the slider
     slider_cosmic_strings.on_change('value', update_Gmu)
+
+
+
+    #####################################
+    #####################################
+    #####################################
+    #####################################
+    #Handling changes in PBH mass
+
+
+    def update_plot_PBH():
+        global hc_PBH
+        nonlocal plot_source_curves
+        nonlocal annotation_source
+
+        # Update the curves dict and plot based on the global variables of phase transitions
+        x_coord = curves_dict['PBHs']['xCurve_PBHs']
+        y_coord = np.array(hc_PBH((x_coord, MPBH)))
+        #For PBHs we compute label position and angle near peak
+        derivative = np.gradient(np.log10(y_coord), np.log10(x_coord))
+        nan_mask = np.isnan(derivative)
+        # Filter out NaN elements using the mask
+        derivative = derivative[~nan_mask]
+        if len(derivative)>0:
+            position_min = np.argmax(abs(derivative))
+            delta_x = 1/100000*x_coord[position_min]
+            position_label = np.abs(x_coord - delta_x).argmin()
+            delta_x = x_coord[position_label]
+            delta_y = y_coord[position_label]
+            label_angle = np.arctan(derivative[position_label])
+        else:
+            #If curve seems problematic, take delta_x delta_y out of plot, label angle 0
+            delta_x = 1.e-5*fmin
+            delta_y = 1.e-5*min(hmin,Omegamin)
+            label_angle = 0.
+
+        y_coord_h = y_coord
+        delta_y_h = delta_y
+        delta_x_h = delta_x
+
+        curves_dict['PBHs']['yCurve_PBHs'] = y_coord
+        curves_dict['PBHs']['annotation_x_PBHs'] = delta_x
+        curves_dict['PBHs']['annotation_y_PBHs'] = delta_y
+        curves_dict['PBHs']['label_angle_PBHs'] = label_angle
+
+        #Change values of Omega
+        y_coord = 2.737E36*(x_coord**2)*(y_coord**2)
+        delta_y = 2.737E36*(delta_x**2)*(delta_y**2)
+
+        curves_dict_Omega['PBHs']['yCurve_PBHs'] = y_coord
+        curves_dict_Omega['PBHs']['annotation_x_PBHs'] = delta_x
+        curves_dict_Omega['PBHs']['annotation_y_PBHs'] = delta_y
+        curves_dict_Omega['PBHs']['label_angle_PBHs'] = label_angle
+
+        #Change values of Sh
+        y_coord = y_coord_h**2/x_coord
+        delta_y = delta_y_h**2/delta_x_h
+
+        curves_dict_Sh['PBHs']['yCurve_PBHs'] = y_coord
+        curves_dict_Sh['PBHs']['annotation_x_PBHs'] = delta_x
+        curves_dict_Sh['PBHs']['annotation_y_PBHs'] = delta_y
+        curves_dict_Sh['PBHs']['label_angle_PBHs'] = label_angle
+
+        # Update the shared data source when the slider changes
+        if what_to_plot == 0:
+            plot_source_curves.data['yCurve_PBHs'] = curves_dict['PBHs']['yCurve_PBHs']
+        elif what_to_plot == 1:
+            plot_source_curves.data['yCurve_PBHs'] = curves_dict_Omega['PBHs']['yCurve_PBHs']
+        elif what_to_plot == 2:
+            plot_source_curves.data['yCurve_PBHs'] = curves_dict_Sh['PBHs']['yCurve_PBHs']
+
+        annotation_source.data = update_annotation_angles(curves_dict, curves_dict_Omega, curves_dict_Sh, what_to_plot, annotation_source, fig, fmin, fmax, hmin, hmax, Omegamin, Omegamax, Shmin, Shmax)
+
+
+    # Define a callback function for the phase transition sliders
+    def update_MPBH(attr, old, new):
+        nonlocal MPBH
+        MPBH = 10**slider_PBH.value
+        update_plot_PBH()
+
+
+    # Attach the Python function to the 'value' change event of the slider
+    slider_PBH.on_change('value', update_MPBH)
+
+
 
     #####################################
     #####################################
@@ -609,34 +775,48 @@ def bokeh_plot_app(doc):
         y_coord = np.sqrt(TCGMB/Mp)*curves_dict['CGMB']['yCurve_CGMB']
         #For CGMB  we compute label position and angle near peak
         position_max = np.argmax(y_coord)
-        delta_x = 12.*x_coord[position_max]
+        delta_x = 5.*x_coord[position_max]
         position_label = np.abs(x_coord - delta_x).argmin()
         delta_x = x_coord[position_label]
         delta_y = y_coord[position_label]
         label_angle = 0
 
-        #As we compute everything wrt to Planck spectrum, we keep it in curves dict so we don't updated it to current TCGMB
+        #As we compute everything wrt to Planck spectrum, we keep it in curves dict so we don't update it to current TCGMB
         curves_dict['CGMB']['annotation_x_CGMB'] = delta_x
         curves_dict['CGMB']['annotation_y_CGMB'] = delta_y
         curves_dict['CGMB']['label_angle_CGMB'] = label_angle
 
+        y_coord_h = y_coord
+        delta_y_h = delta_y
 
-
+        #Coords Omega
         delta_y = 2.737E36*(delta_x**2)*(delta_y**2)
+
 
         #curves_dict_Omega['CGMB']['yCurve_CGMB'] = y_coord
         curves_dict_Omega['CGMB']['annotation_x_CGMB'] = delta_x
         curves_dict_Omega['CGMB']['annotation_y_CGMB'] = delta_y
         curves_dict_Omega['CGMB']['label_angle_CGMB'] = label_angle
 
+
+        #Coords Sh
+        delta_y = delta_y_h**2/delta_x
+        curves_dict_Sh['CGMB']['annotation_x_CGMB'] = delta_x
+        curves_dict_Sh['CGMB']['annotation_y_CGMB'] = delta_y
+        curves_dict_Sh['CGMB']['label_angle_CGMB'] = label_angle
+
+
         # Update the shared data source when the slider changes
         if what_to_plot == 0:
             plot_source_curves.data['yCurve_CGMB'] = y_coord
-        else:
+        elif  what_to_plot == 1:
             y_coord = 2.737E36*(x_coord**2)*(y_coord**2)
             plot_source_curves.data['yCurve_CGMB'] = y_coord
+        elif  what_to_plot == 2:
+            y_coord = y_coord_h**2/x_coord
+            plot_source_curves.data['yCurve_CGMB'] = y_coord
 
-        annotation_source.data = update_annotation_angles(curves_dict, curves_dict_Omega, what_to_plot, annotation_source, fig, fmin, fmax, hmin, hmax, Omegamin, Omegamax)
+        annotation_source.data = update_annotation_angles(curves_dict, curves_dict_Omega, curves_dict_Sh, what_to_plot, annotation_source, fig, fmin, fmax, hmin, hmax, Omegamin, Omegamax, Shmin, Shmax)
 
 
     # Define a callback function for the phase transition sliders
@@ -653,7 +833,7 @@ def bokeh_plot_app(doc):
 
 
     # Add the layout to the Bokeh document
-    final_layout = column(layout,  Div(text="<div style='height: 10px; background-color: black; width: 100%;'></div>"), row(layout_size,Div(text="<div style='width: 10px; background-color: black; height: 100%;'></div>"), layout2, Div(text="<div style='width: 10px; background-color: black; height: 100%;'></div>"), column(layout_CGMB,layout_cosmic_strings)), sizing_mode="scale_both")
+    final_layout = column(layout,  Div(text="<div style='height: 10px; background-color: black; width: 100%;'></div>"), row(layout_size,Div(text="<div style='width: 10px; background-color: black; height: 100%;'></div>"), layout2, Div(text="<div style='width: 10px; background-color: black; height: 100%;'></div>"), column(layout_CGMB,layout_cosmic_strings, layout_PBH)), sizing_mode="scale_both")
     doc.add_root(final_layout)
 
 
